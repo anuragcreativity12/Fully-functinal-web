@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full College System Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+    <!-- AUTHENTICATION OVERLAY -->
+    <div id="authOverlay" class="auth-overlay">
+        <div class="auth-card">
+            <h2>Portal Authentication</h2>
+            <form onsubmit="handleAuth(event)">
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="roleSelect" onchange="toggleRoleFields()">
+                        <option value="student">Student</option>
+                        <option value="faculty">Faculty</option>
+                        <option value="admin">Admin System</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="mobileGroup">
+                    <label>Select Student Mobile</label>
+                    <select id="studentSelect">
+                        <option value="9876543210">9876543210 (Rahul Sharma)</option>
+                        <option value="9876543211">9876543211 (Priya Patel)</option>
+                        <option value="9876543212">9876543212 (Amit Kumar)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="passInput" required>
+                    <small id="passHint">Password: <strong>camu12</strong></small>
+                </div>
+
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP LAYOUT -->
+    <div id="appLayout" class="hidden">
+        <aside>
+            <div class="brand">🏫 Academic Portal</div>
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="navigateTo('dashboard', this)">🏠 Dashboard</li>
+                <li class="nav-item" onclick="navigateTo('attendance', this)">📊 Attendance</li>
+                <li class="nav-item" onclick="navigateTo('results', this)">📈 Exam Results</li>
+                <li class="nav-item student-only" onclick="navigateTo('fees', this)">💰 Fee Status</li>
+                <li class="nav-item" onclick="navigateTo('notices', this)">📢 Campus Notices</li>
+                <li class="nav-item admin-only hidden" onclick="navigateTo('adminView', this)">⚙️ Admin Management</li>
+            </ul>
+        </aside>
+
+        <main>
+            <header>
+                <div class="header-title" id="headerTitle">Dashboard</div>
+                <div class="user-info">
+                    <span id="userBadge" class="user-badge">Student</span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </header>
+
+            <div class="content">
+
+                <!-- 1. DASHBOARD -->
+                <div id="viewDashboard" class="view-panel">
+                    <div class="card">
+                        <h2 id="welcomeHeader">Welcome!</h2>
+                        <p id="welcomeSubtext" style="margin-top:10px; color:#666;"></p>
+                    </div>
+                </div>
+
+                <!-- 2. ATTENDANCE -->
+                <div id="viewAttendance" class="view-panel hidden">
+                    <div class="card student-only">
+                        <h3>Your Total Attendance: <span id="studentAttVal"></span>%</h3>
+                    </div>
+                    <div class="card faculty-only hidden">
+                        <h3>Faculty Attendance Marking</h3>
+                        <table>
+                            <thead><tr><th>Student</th><th>Roll No</th><th>Attendance</th><th>Action</th></tr></thead>
+                            <tbody id="facultyAttBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. RESULTS -->
+                <div id="viewResults" class="view-panel hidden">
+                    <div class="card student-only">
+                        <h3>Your Exam Grades</h3>
+                        <table>
+                            <thead><tr><th>Subject</th><th>Score</th></tr></thead>
+                            <tbody id="studentResultsBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="card faculty-only hidden">
+                        <h3>Faculty Marks Entry Workspace</h3>
+                        <table>
+                            <thead><tr><th>Student Name</th><th>DBMS Score</th><th>Java Score</th><th>Action</th></tr></thead>
+                            <tbody id="facultyMarksBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. FEES -->
+                <div id="viewFees" class="view-panel hidden">
+                    <div class="card">
+                        <h3>Tuition Fee Clearance</h3>
+                        <p id="feeStatusText" style="margin: 15px 0;"></p>
+                        <button class="btn-primary" style="width:auto;" onclick="payFeeBackend()">Pay Fee Now</button>
+                    </div>
+                </div>
+
+                <!-- 5. NOTICES -->
+                <div id="viewNotices" class="view-panel hidden">
+                    <div class="card faculty-only hidden">
+                        <h3>Post Notice</h3>
+                        <input type="text" id="noticeInput" placeholder="Enter notice content..." style="width:70%; padding:8px;">
+                        <button class="btn-success" onclick="postNoticeBackend()">Broadcast Notice</button>
+                    </div>
+                    <div class="card">
+                        <h3>Published Announcements</h3>
+                        <div id="noticeContainer" style="margin-top:10px;"></div>
+                    </div>
+                </div>
+
+                <!-- 6. ADMIN MANAGEMENT PANEL -->
+                <div id="viewAdminView" class="view-panel hidden">
+                    <div class="card">
+                        <h2>Admin Master Data Center</h2>
+                        <p>Complete Database Records of Students and Faculty</p>
+                    </div>
+                    <div class="card">
+                        <h3>Registered Faculty Members</h3>
+                        <table>
+                            <thead><tr><th>ID</th><th>Faculty Name</th><th>Department</th><th>Subject</th><th>Email</th></tr></thead>
+                            <tbody id="adminFacultyTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h3>All Registered Students & Live Records</h3>
+                        <table>
+                            <thead><tr><th>Mobile</th><th>Name</th><th>Roll</th><th>Attendance</th><th>DBMS</th><th>Java</th><th>Fee</th></tr></thead>
+                            <tbody id="adminStudentsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentRole = 'student';
+        let currentStudentMobile = '9876543210';
+        let systemData = {};
+
+        function toggleRoleFields() {
+            const r = document.getElementById('roleSelect').value;
+            document.getElementById('mobileGroup').classList.toggle('hidden', r !== 'student');
+            const hint = document.getElementById('passHint');
+            if(r === 'student') hint.innerHTML = 'Password: <strong>camu12</strong>';
+            if(r === 'faculty') hint.innerHTML = 'Password: <strong>faculty123</strong>';
+            if(r === 'admin') hint.innerHTML = 'Password: <strong>admin123</strong>';
+        }
+
+        async function fetchSystemData() {
+            const res = await fetch('/api/data');
+            systemData = await res.json();
+            renderViews();
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const role = document.getElementById('roleSelect').value;
+            const mobile = document.getElementById('studentSelect').value;
+            const password = document.getElementById('passInput').value;
+
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role, mobile, password })
+            });
+            const data = await res.json();
+
+            if (!res.ok) return alert(data.error);
+
+            currentRole = role;
+            currentStudentMobile = mobile;
+
+            document.getElementById('authOverlay').classList.add('hidden');
+            document.getElementById('appLayout').classList.remove('hidden');
+
+            await fetchSystemData();
+        }
+
+        function renderViews() {
+            const isFaculty = currentRole === 'faculty';
+            const isAdmin = currentRole === 'admin';
+
+            document.querySelectorAll('.student-only').forEach(e => e.classList.toggle('hidden', isFaculty || isAdmin));
+            document.querySelectorAll('.faculty-only').forEach(e => e.classList.toggle('hidden', !isFaculty));
+            document.querySelectorAll('.admin-only').forEach(e => e.classList.toggle('hidden', !isAdmin));
+
+            document.getElementById('userBadge').innerText = currentRole.toUpperCase() + ' PORTAL';
+
+            const activeStudent = systemData.students[currentStudentMobile];
+            if (activeStudent) {
+                document.getElementById('welcomeHeader').innerText = `Welcome, ${activeStudent.name}!`;
+                document.getElementById('welcomeSubtext').innerText = `Roll No: ${activeStudent.roll} | Status: Connected to Server`;
+                document.getElementById('studentAttVal').innerText = activeStudent.att;
+                document.getElementById('feeStatusText').innerText = `Current Fee Status: ${activeStudent.fee}`;
+                document.getElementById('studentResultsBody').innerHTML = `
+                    <tr><td>DBMS</td><td>${activeStudent.dbms}</td></tr>
+                    <tr><td>Java</td><td>${activeStudent.java}</td></tr>
+                `;
+            }
+
+            // Render Faculty Views
+            if (isFaculty) {
+                let attRows = '';
+                let marksRows = '';
+                Object.values(systemData.students).forEach(s => {
+                    attRows += `<tr><td>${s.name}</td><td>${s.roll}</td><td>${s.att}%</td><td><button class="btn-success" onclick="markAttendanceBackend('${s.mobile}')">Mark Present (+1%)</button></td></tr>`;
+                    marksRows += `<tr><td>${s.name}</td><td><input type="number" id="d_${s.mobile}" value="${s.dbms}" style="width:60px;"></td><td><input type="number" id="j_${s.mobile}" value="${s.java}" style="width:60px;"></td><td><button class="btn-primary" style="padding:4px 8px;" onclick="updateMarksBackend('${s.mobile}')">Save</button></td></tr>`;
+                });
+                document.getElementById('facultyAttBody').innerHTML = attRows;
+                document.getElementById('facultyMarksBody').innerHTML = marksRows;
+            }
+
+            // Render Notices
+            document.getElementById('noticeContainer').innerHTML = systemData.notices.map(n => `<div class="item-card">${n}</div>`).join('');
+
+            // Render Admin Master Table
+            if (isAdmin) {
+                document.getElementById('adminFacultyTable').innerHTML = systemData.faculty.map(f => `<tr><td>${f.id}</td><td>${f.name}</td><td>${f.department}</td><td>${f.subject}</td><td>${f.email}</td></tr>`).join('');
+                document.getElementById('adminStudentsTable').innerHTML = Object.values(systemData.students).map(s => `<tr><td>${s.mobile}</td><td>${s.name}</td><td>${s.roll}</td><td>${s.att}%</td><td>${s.dbms}</td><td>${s.java}</td><td>${s.fee}</td></tr>`).join('');
+            }
+        }
+
+        async function markAttendanceBackend(mobile) {
+            await fetch('/api/faculty/mark-attendance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mobile })
+            });
+            fetchSystemData();
+        }
+
+        async function updateMarksBackend(mobile) {
+            const dbms = document.getElementById(`d_${mobile}`).value;
+            const java = document.getElementById(`j_${mobile}`).value;
+            await fetch('/api/faculty/update-marks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mobile, dbms, java })
+            });
+            fetchSystemData();
+            alert('Marks saved!');
+        }
+
+        async function postNoticeBackend() {
+            const notice = document.getElementById('noticeInput').value;
+            await fetch('/api/notices/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notice })
+            });
+            document.getElementById('noticeInput').value = '';
+            fetchSystemData();
+        }
+
+        async function payFeeBackend() {
+            await fetch('/api/student/pay-fee', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mobile: currentStudentMobile })
+            });
+            fetchSystemData();
+            alert('Fee payment recorded on server!');
+        }
+
+        function navigateTo(vId, el) {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('view' + vId.charAt(0).toUpperCase() + vId.slice(1)).classList.remove('hidden');
+            el.classList.add('active');
+        }
+
+        function logout() { location.reload(); }
+        toggleRoleFields();
+    </script>
+</body>
+</html>
