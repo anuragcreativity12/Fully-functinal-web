@@ -3,154 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>College Management System</title>
+    <title>B.Tech College & Career Management System</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #f4f6f9; color: #333; }
+        body { background: #f0f2f5; color: #1c1e21; }
         .hidden { display: none !important; }
-        
-        /* Auth Styles */
-        .auth-container { max-width: 400px; margin: 80px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .auth-container h2 { margin-bottom: 20px; text-align: center; color: #2c3e50; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        button { width: 100%; padding: 10px; background: #3498db; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #2980b9; }
 
-        /* Dashboard Styles */
-        nav { background: #2c3e50; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        nav h1 { font-size: 20px; }
-        nav button { width: auto; background: #e74c3c; padding: 8px 15px; }
-        nav button:hover { background: #c0392b; }
-        
-        .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
-        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .card h3 { border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 15px; color: #2c3e50; }
-        
+        /* Navigation */
+        nav { background: #1a252f; color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        nav h1 { font-size: 20px; font-weight: 600; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .logout-btn { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .logout-btn:hover { background: #c0392b; }
+
+        /* Layout */
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card h3 { border-bottom: 2px solid #3498db; padding-bottom: 8px; margin-bottom: 15px; color: #2c3e50; font-size: 18px; }
+
+        /* Auth Screen */
+        .auth-container { max-width: 450px; margin: 60px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .auth-container h2 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+        .tab-buttons { display: flex; margin-bottom: 20px; border-bottom: 1px solid #ddd; }
+        .tab-btn { flex: 1; padding: 10px; background: none; border: none; cursor: pointer; font-weight: bold; color: #777; }
+        .tab-btn.active { color: #3498db; border-bottom: 2px solid #3498db; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .btn-primary { width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .btn-primary:hover { background: #2980b9; }
+
+        /* Tabs for Student Panel */
+        .panel-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .panel-tab { padding: 10px 20px; background: #e9ecef; border: none; cursor: pointer; font-weight: bold; border-radius: 5px 5px 0 0; }
+        .panel-tab.active { background: #3498db; color: white; }
+
+        /* Data Tables */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        table, th, td { border: 1px solid #ddd; }
-        th, td { padding: 10px; text-align: left; }
-        th { background: #f2f2f2; }
-        
-        #qrcode { margin-top: 15px; display: flex; justify-content: center; }
-        .notice-item { background: #edf7ed; border-left: 4px solid #2e7d32; padding: 10px; margin-bottom: 10px; border-radius: 2px; }
+        table, th, td { border: 1px solid #e0e0e0; }
+        th, td { padding: 10px; text-align: left; font-size: 14px; }
+        th { background: #f8f9fa; }
+
+        /* Job & Internship Items */
+        .job-card { border: 1px solid #e0e0e0; padding: 15px; border-radius: 6px; margin-bottom: 15px; background: #fafafa; }
+        .job-card h4 { color: #2c3e50; margin-bottom: 5px; }
+        .job-tech { display: inline-block; background: #e1f5fe; color: #0288d1; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin: 5px 5px 5px 0; }
+        .apply-btn { width: auto; background: #27ae60; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; float: right; }
+        .apply-btn:hover { background: #2196f3; }
+
+        /* Resume Preview */
+        .resume-box { background: #fff; border: 1px solid #ccc; padding: 25px; border-radius: 4px; line-height: 1.6; }
+        .resume-box h2 { border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 10px; }
+
+        /* Miscellaneous */
+        .notice-item { background: #e8f4f8; border-left: 4px solid #3498db; padding: 10px; margin-bottom: 10px; border-radius: 3px; }
+        #qrcode { display: flex; justify-content: center; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <!-- STAGE 1 & 2: Authentication & Role Management -->
+    <!-- AUTHENTICATION SECTION (STAGE 1 & 2) -->
     <div id="authSection" class="auth-container">
-        <h2>College Portal Login</h2>
-        <div class="form-group">
-            <label for="username">User ID / Email</label>
-            <input type="text" id="username" placeholder="Enter ID">
+        <h2>B.Tech CMS Portal</h2>
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchAuthMode('login')">Login</button>
+            <button class="tab-btn" onclick="switchAuthMode('register')">Register Student</button>
         </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter Password">
-        </div>
-        <div class="form-group">
-            <label for="role">Select Role</label>
-            <select id="role">
-                <option value="student">Student</option>
-                <option value="faculty">Faculty</option>
-                <option value="admin">Admin</option>
-            </select>
-        </div>
-        <button onclick="login()">Login</button>
+
+        <form id="authForm" onsubmit="handleAuth(event)">
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" onchange="toggleRollNumberField()">
+                    <option value="student">Student</option>
+                    <option value="faculty">Faculty</option>
+                    <option value="admin">Admin Panel</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="userId">User ID / Email</label>
+                <input type="text" id="userId" placeholder="Enter ID or Email" required>
+            </div>
+
+            <div class="form-group" id="rollNoGroup">
+                <label for="rollNo">Allowed Roll Number (B.Tech Verification)</label>
+                <input type="text" id="rollNo" placeholder="e.g. BT2024001">
+                <small style="color:#777;">System verifies against university authorization records.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+
+            <button type="submit" id="authSubmitBtn" class="btn-primary">Login</button>
+        </form>
     </div>
 
-    <!-- STAGE 3: Full Functional System Layout -->
+    <!-- MAIN APPLICATION SECTION (STAGE 3) -->
     <div id="appSection" class="hidden">
         <nav>
-            <h1 id="welcomeMsg">College Management System</h1>
-            <button onclick="logout()">Logout</button>
+            <h1 id="welcomeMsg">College & Career Portal</h1>
+            <div class="nav-right">
+                <span id="userBadge" style="background:#34495e; padding:5px 10px; border-radius:4px; font-size:14px;"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
         </nav>
 
         <div class="container">
-            <!-- Notices Section (Visible to All) -->
-            <div class="card" style="margin-bottom: 20px;">
-                <h3>Announcements & Notices</h3>
-                <div id="noticeList">No notices posted yet.</div>
+            <!-- Global Noticeboard -->
+            <div class="card">
+                <h3>Campus Notices & Announcements</h3>
+                <div id="noticeList">No active announcements.</div>
             </div>
 
-            <!-- Student Dashboard -->
+            <!-- STUDENT DASHBOARD -->
             <div id="studentDashboard" class="hidden">
-                <div class="grid">
-                    <div class="card">
-                        <h3>Attendance QR Code</h3>
-                        <p>Scan this QR code to register attendance for today.</p>
-                        <div id="qrcode"></div>
+                <div class="panel-nav">
+                    <button class="panel-tab active" onclick="switchStudentTab('academics')">Academics & Attendance</button>
+                    <button class="panel-tab" onclick="switchStudentTab('internships')">Internship Search</button>
+                    <button class="panel-tab" onclick="switchStudentTab('career')">Resume & Career Builder</button>
+                </div>
+
+                <!-- Tab 1: Academics & QR -->
+                <div id="tabAcademics">
+                    <div class="grid">
+                        <div class="card">
+                            <h3>Attendance QR Token</h3>
+                            <p>Show this code to faculty for daily lecture check-in.</p>
+                            <div id="qrcode"></div>
+                        </div>
+                        <div class="card">
+                            <h3>Academic Marks & Transcript</h3>
+                            <table>
+                                <thead><tr><th>Subject</th><th>Score</th><th>Status</th></tr></thead>
+                                <tbody id="studentMarksTable"></tbody>
+                            </table>
+                        </div>
+                        <div class="card">
+                            <h3>Tuition Fee Clearance</h3>
+                            <p>Semester Fee Amount: <strong>$4,500</strong></p>
+                            <p id="feeStatusText">Status: Checking...</p><br>
+                            <button class="btn-primary" onclick="payFees()">Clear Semester Fees</button>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Tab 2: B.Tech Internship Search -->
+                <div id="tabInternships" class="hidden">
                     <div class="card">
-                        <h3>Academic Marks</h3>
-                        <table>
-                            <thead><tr><th>Subject</th><th>Marks</th></tr></thead>
-                            <tbody id="studentMarksBody"></tbody>
-                        </table>
+                        <h3>Published B.Tech Internships & Entry-Level Jobs</h3>
+                        <div class="form-group">
+                            <input type="text" id="jobSearchInput" placeholder="Filter by technology or role (e.g. React, Python, Web)..." onkeyup="filterJobs()">
+                        </div>
+                        <div id="jobListings"></div>
                     </div>
-                    <div class="card">
-                        <h3>Fee Payment Status</h3>
-                        <p>Total Tuition Fee: <strong>$5,000</strong></p>
-                        <p id="feeStatus">Status: Pending</p>
-                        <br>
-                        <button onclick="payFees()">Pay Fees Now</button>
+                </div>
+
+                <!-- Tab 3: Resume Builder & Career Readiness -->
+                <div id="tabCareer" class="hidden">
+                    <div class="grid">
+                        <div class="card">
+                            <h3>Update Resume Information</h3>
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="resName" placeholder="Your Full Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Technical Skills (Comma separated)</label>
+                                <input type="text" id="resSkills" placeholder="C++, JavaScript, SQL, Git">
+                            </div>
+                            <div class="form-group">
+                                <label>Projects (Brief Description)</label>
+                                <textarea id="resProjects" rows="3" placeholder="Describe key engineering projects..."></textarea>
+                            </div>
+                            <button class="btn-primary" onclick="saveResume()">Generate & Save Resume</button>
+                        </div>
+                        <div class="card">
+                            <h3>Live Resume Preview</h3>
+                            <div id="resumePreview" class="resume-box">
+                                <p style="color:#888;">Fill out the form on the left to generate your resume profile.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Faculty Dashboard -->
+            <!-- FACULTY DASHBOARD -->
             <div id="facultyDashboard" class="hidden">
                 <div class="grid">
                     <div class="card">
-                        <h3>Enter Marks</h3>
+                        <h3>Publish Academic Grades</h3>
                         <div class="form-group">
-                            <label>Student ID</label>
-                            <input type="text" id="markStudentId" placeholder="e.g. STU101">
+                            <label>Student Roll Number</label>
+                            <input type="text" id="markRollNo" placeholder="e.g. BT2024001">
                         </div>
                         <div class="form-group">
                             <label>Subject</label>
-                            <input type="text" id="markSubject" placeholder="e.g. Mathematics">
+                            <input type="text" id="markSubject" placeholder="e.g. Data Structures">
                         </div>
                         <div class="form-group">
-                            <label>Score</label>
-                            <input type="number" id="markScore" placeholder="e.g. 85">
+                            <label>Marks Received</label>
+                            <input type="number" id="markScore" placeholder="e.g. 92">
                         </div>
-                        <button onclick="submitMark()">Submit Mark</button>
+                        <button class="btn-primary" onclick="submitGrade()">Submit Grade Record</button>
                     </div>
+
                     <div class="card">
-                        <h3>Mark Attendance (Manual/QR)</h3>
+                        <h3>Attendance Registration</h3>
                         <div class="form-group">
-                            <label>Student ID</label>
-                            <input type="text" id="attStudentId" placeholder="e.g. STU101">
+                            <label>Student Roll Number</label>
+                            <input type="text" id="attRollNo" placeholder="e.g. BT2024001">
                         </div>
-                        <button onclick="markAttendance()">Record Attendance</button>
-                        <div id="attendanceLog" style="margin-top: 15px;"></div>
+                        <button class="btn-primary" onclick="registerAttendance()">Log Attendance</button>
+                        <br><br>
+                        <h4>Recent Attendance Logs</h4>
+                        <div id="facultyAttLog"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Admin Panel Dashboard -->
+            <!-- ADMIN DASHBOARD -->
             <div id="adminDashboard" class="hidden">
                 <div class="grid">
                     <div class="card">
-                        <h3>Post Notice</h3>
+                        <h3>Post Campus Notice</h3>
                         <div class="form-group">
-                            <label>Notice Content</label>
-                            <input type="text" id="noticeInput" placeholder="Enter notice details...">
+                            <textarea id="noticeInput" rows="3" placeholder="Enter notice content..."></textarea>
                         </div>
-                        <button onclick="postNotice()">Publish Notice</button>
+                        <button class="btn-primary" onclick="postNotice()">Publish Notice</button>
                     </div>
+
                     <div class="card">
-                        <h3>System Stats & Database Records</h3>
-                        <p>Total Registered Students: <strong>120</strong></p>
-                        <p>Total Active Faculty: <strong>15</strong></p>
-                        <br>
-                        <h4>Recent Attendance Log</h4>
-                        <ul id="adminAttendanceList"></ul>
+                        <h3>Post New B.Tech Internship/Job</h3>
+                        <div class="form-group">
+                            <label>Role / Title</label>
+                            <input type="text" id="jobTitle" placeholder="e.g. Full Stack Intern">
+                        </div>
+                        <div class="form-group">
+                            <label>Company</label>
+                            <input type="text" id="jobCompany" placeholder="e.g. TechCorp">
+                        </div>
+                        <div class="form-group">
+                            <label>Required Skills</label>
+                            <input type="text" id="jobTech" placeholder="e.g. React, Node.js">
+                        </div>
+                        <div class="form-group">
+                            <label>Stipend / Package</label>
+                            <input type="text" id="jobStipend" placeholder="e.g. $1000/month">
+                        </div>
+                        <button class="btn-primary" onclick="postJob()">Publish Job Posting</button>
                     </div>
                 </div>
             </div>
@@ -159,29 +263,90 @@
     </div>
 
     <script>
-        // Database Initialization (LocalStorage)
-        if (!localStorage.getItem('cms_marks')) localStorage.setItem('cms_marks', JSON.stringify([]));
-        if (!localStorage.getItem('cms_notices')) localStorage.setItem('cms_notices', JSON.stringify(["Welcome to the new academic year!"]));
-        if (!localStorage.getItem('cms_attendance')) localStorage.setItem('cms_attendance', JSON.stringify([]));
-        if (!localStorage.getItem('cms_fee_paid')) localStorage.setItem('cms_fee_paid', "false");
+        // STAGE 2: Database Initialization (LocalStorage)
+        const AUTHORIZED_STUDENT_ROLLS = ["BT2024001", "BT2024002", "BT2024003", "BT2024004", "BT2024005"];
 
+        if (!localStorage.getItem('cms_notices')) {
+            localStorage.setItem('cms_notices', JSON.stringify([
+                "Welcome to the Academic Session 2026!",
+                "B.Tech Internship Drive begins next week. Update your resumes in the Career panel."
+            ]));
+        }
+
+        if (!localStorage.getItem('cms_jobs')) {
+            localStorage.setItem('cms_jobs', JSON.stringify([
+                { id: 1, title: "Frontend Developer Intern", company: "WebWorks Ltd", tech: "React, CSS, JS", stipend: "$800/mo", desc: "Build modern web user interfaces using modern JavaScript frameworks." },
+                { id: 2, title: "Software Engineer Trainee", company: "Apex Systems", tech: "C++, Python, SQL", stipend: "$1,200/mo", desc: "Assist backend core systems design and algorithm optimization." },
+                { id: 3, title: "Data Analyst Intern", company: "DataViz Inc", tech: "Python, SQL, Tableau", stipend: "$900/mo", desc: "Work with data pipelines and perform descriptive analysis for business insights." }
+            ]));
+        }
+
+        if (!localStorage.getItem('cms_marks')) localStorage.setItem('cms_marks', JSON.stringify([]));
+        if (!localStorage.getItem('cms_attendance')) localStorage.setItem('cms_attendance', JSON.stringify([]));
+        if (!localStorage.getItem('cms_students')) localStorage.setItem('cms_students', JSON.stringify({}));
+
+        let authMode = 'login';
         let currentUser = null;
 
-        function login() {
-            const username = document.getElementById('username').value;
-            const role = document.getElementById('role').value;
+        function switchAuthMode(mode) {
+            authMode = mode;
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons[0].classList.toggle('active', mode === 'login');
+            buttons[1].classList.toggle('active', mode === 'register');
+            document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Login' : 'Register Account';
+            toggleRollNumberField();
+        }
 
-            if (!username) {
-                alert('Please enter a User ID');
-                return;
+        function toggleRollNumberField() {
+            const role = document.getElementById('role').value;
+            const rollGroup = document.getElementById('rollNoGroup');
+            if (role === 'student') {
+                rollGroup.classList.remove('hidden');
+            } else {
+                rollGroup.classList.add('hidden');
+            }
+        }
+
+        // STAGE 1 & 2: Authentication with B.Tech Authorization
+        function handleAuth(event) {
+            event.preventDefault();
+            const role = document.getElementById('role').value;
+            const userId = document.getElementById('userId').value.trim();
+            const rollNo = document.getElementById('rollNo').value.trim().toUpperCase();
+            const password = document.getElementById('password').value;
+
+            const registeredStudents = JSON.parse(localStorage.getItem('cms_students'));
+
+            if (role === 'student') {
+                if (!AUTHORIZED_STUDENT_ROLLS.includes(rollNo)) {
+                    alert('AUTHENTICATION ERROR: Roll Number is not pre-authorized for admission in B.Tech database.');
+                    return;
+                }
+
+                if (authMode === 'register') {
+                    if (registeredStudents[rollNo]) {
+                        alert('Account already exists for this Roll Number. Please Login.');
+                        return;
+                    }
+                    registeredStudents[rollNo] = { userId, password, rollNo, feePaid: false, resume: {} };
+                    localStorage.setItem('cms_students', JSON.stringify(registeredStudents));
+                    alert('Registration Successful! You can now log in.');
+                    switchAuthMode('login');
+                    return;
+                } else {
+                    if (!registeredStudents[rollNo] || registeredStudents[rollNo].password !== password) {
+                        alert('Invalid Credentials or account not registered.');
+                        return;
+                    }
+                }
             }
 
-            currentUser = { id: username, role: role };
+            currentUser = { role, userId, rollNo: role === 'student' ? rollNo : null };
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('appSection').classList.remove('hidden');
-            document.getElementById('welcomeMsg').innerText = `College Management System - ${role.toUpperCase()} (${username})`;
+            document.getElementById('userBadge').innerText = `${role.toUpperCase()} | ${currentUser.rollNo || currentUser.userId}`;
 
-            renderDashboard();
+            renderDashboards();
         }
 
         function logout() {
@@ -191,8 +356,8 @@
             document.getElementById('qrcode').innerHTML = "";
         }
 
-        function renderDashboard() {
-            // Hide all dashboards first
+        // STAGE 3: Full Functional System Dashboards
+        function renderDashboards() {
             document.getElementById('studentDashboard').classList.add('hidden');
             document.getElementById('facultyDashboard').classList.add('hidden');
             document.getElementById('adminDashboard').classList.add('hidden');
@@ -201,100 +366,216 @@
 
             if (currentUser.role === 'student') {
                 document.getElementById('studentDashboard').classList.remove('hidden');
-                generateQRCode();
+                generateStudentQR();
                 renderStudentMarks();
                 renderFeeStatus();
+                renderJobs();
+                loadResume();
             } else if (currentUser.role === 'faculty') {
                 document.getElementById('facultyDashboard').classList.remove('hidden');
-                renderAttendanceLog();
+                renderFacultyAttLog();
             } else if (currentUser.role === 'admin') {
                 document.getElementById('adminDashboard').classList.remove('hidden');
-                renderAdminStats();
             }
         }
 
-        // Attendance QR Code Feature
-        function generateQRCode() {
-            const qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = "";
-            new QRCode(qrContainer, {
-                text: JSON.stringify({ studentId: currentUser.id, timestamp: new Date().toISOString() }),
-                width: 128,
-                height: 128
+        // Student Navigation Tabs
+        function switchStudentTab(tabName) {
+            document.getElementById('tabAcademics').classList.toggle('hidden', tabName !== 'academics');
+            document.getElementById('tabInternships').classList.toggle('hidden', tabName !== 'internships');
+            document.getElementById('tabCareer').classList.toggle('hidden', tabName !== 'career');
+
+            const tabs = document.querySelectorAll('.panel-tab');
+            tabs[0].classList.toggle('active', tabName === 'academics');
+            tabs[1].classList.toggle('active', tabName === 'internships');
+            tabs[2].classList.toggle('active', tabName === 'career');
+        }
+
+        // QR Code Feature
+        function generateStudentQR() {
+            const container = document.getElementById('qrcode');
+            container.innerHTML = "";
+            new QRCode(container, {
+                text: JSON.stringify({ rollNo: currentUser.rollNo, date: new Date().toLocaleDateString() }),
+                width: 120,
+                height: 120
             });
         }
 
-        // Marks Feature
-        function submitMark() {
-            const studentId = document.getElementById('markStudentId').value;
-            const subject = document.getElementById('markSubject').value;
+        // Academic Marks
+        function submitGrade() {
+            const rollNo = document.getElementById('markRollNo').value.trim().toUpperCase();
+            const subject = document.getElementById('markSubject').value.trim();
             const score = document.getElementById('markScore').value;
 
-            if (!studentId || !subject || !score) return alert('Fill all fields');
+            if (!rollNo || !subject || !score) return alert('Fill out all fields');
 
             const marks = JSON.parse(localStorage.getItem('cms_marks'));
-            marks.push({ studentId, subject, score });
+            marks.push({ rollNo, subject, score });
             localStorage.setItem('cms_marks', JSON.stringify(marks));
 
-            alert('Mark updated successfully!');
-            document.getElementById('markStudentId').value = '';
+            alert('Grade successfully logged!');
+            document.getElementById('markRollNo').value = '';
             document.getElementById('markSubject').value = '';
             document.getElementById('markScore').value = '';
         }
 
         function renderStudentMarks() {
             const marks = JSON.parse(localStorage.getItem('cms_marks'));
-            const tbody = document.getElementById('studentMarksBody');
+            const tbody = document.getElementById('studentMarksTable');
             tbody.innerHTML = '';
-            
-            const userMarks = marks.filter(m => m.studentId === currentUser.id);
-            if (userMarks.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="2">No marks recorded yet.</td></tr>';
+
+            const studentMarks = marks.filter(m => m.rollNo === currentUser.rollNo);
+            if (studentMarks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">No subject marks posted yet.</td></tr>';
                 return;
             }
 
-            userMarks.forEach(m => {
+            studentMarks.forEach(m => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${m.subject}</td><td>${m.score}</td>`;
+                const status = m.score >= 40 ? '<span style="color:green;font-weight:bold;">Pass</span>' : '<span style="color:red;font-weight:bold;">Fail</span>';
+                tr.innerHTML = `<td>${m.subject}</td><td>${m.score}</td><td>${status}</td>`;
                 tbody.appendChild(tr);
             });
         }
 
-        // Attendance Recording Feature
-        function markAttendance() {
-            const studentId = document.getElementById('attStudentId').value;
-            if (!studentId) return alert('Enter Student ID');
-
-            const attendance = JSON.parse(localStorage.getItem('cms_attendance'));
-            attendance.push({ studentId, time: new Date().toLocaleTimeString() });
-            localStorage.setItem('cms_attendance', JSON.stringify(attendance));
-
-            alert(`Attendance recorded for ${studentId}`);
-            document.getElementById('attStudentId').value = '';
-            renderAttendanceLog();
-        }
-
-        function renderAttendanceLog() {
-            const attendance = JSON.parse(localStorage.getItem('cms_attendance'));
-            const logDiv = document.getElementById('attendanceLog');
-            logDiv.innerHTML = '<h4>Today\'s Log:</h4>' + attendance.map(a => `<p>${a.studentId} logged at ${a.time}</p>`).join('');
-        }
-
-        // Fee Payment Feature
+        // Fee Management
         function payFees() {
-            localStorage.setItem('cms_fee_paid', "true");
-            renderFeeStatus();
-            alert('Fees Paid Successfully!');
+            const students = JSON.parse(localStorage.getItem('cms_students'));
+            if (students[currentUser.rollNo]) {
+                students[currentUser.rollNo].feePaid = true;
+                localStorage.setItem('cms_students', JSON.stringify(students));
+                renderFeeStatus();
+                alert('Semester Tuition Fee Paid Successfully!');
+            }
         }
 
         function renderFeeStatus() {
-            const isPaid = localStorage.getItem('cms_fee_paid') === "true";
-            document.getElementById('feeStatus').innerHTML = `Status: <strong style="color: ${isPaid ? 'green' : 'red'};">${isPaid ? 'PAID' : 'PENDING'}</strong>`;
+            const students = JSON.parse(localStorage.getItem('cms_students'));
+            const isPaid = students[currentUser.rollNo] ? students[currentUser.rollNo].feePaid : false;
+            const text = document.getElementById('feeStatusText');
+            text.innerHTML = `Status: <strong style="color:${isPaid ? 'green' : 'red'}">${isPaid ? 'CLEARED / PAID' : 'UNPAID / PENDING'}</strong>`;
         }
 
-        // Notice Board Feature
+        // Internship Portal
+        function renderJobs(filter = "") {
+            const jobs = JSON.parse(localStorage.getItem('cms_jobs'));
+            const container = document.getElementById('jobListings');
+            container.innerHTML = "";
+
+            const filtered = jobs.filter(j => 
+                j.title.toLowerCase().includes(filter.toLowerCase()) || 
+                j.tech.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = "<p>No matching internship postings found.</p>";
+                return;
+            }
+
+            filtered.forEach(job => {
+                const card = document.createElement('div');
+                card.className = "job-card";
+                card.innerHTML = `
+                    <button class="apply-btn" onclick="applyJob('${job.title}')">Apply Now</button>
+                    <h4>${job.title} - ${job.company}</h4>
+                    <p style="font-size:13px; color:#555;">Stipend: <strong>${job.stipend}</strong></p>
+                    <p style="margin:5px 0; font-size:14px;">${job.desc}</p>
+                    <div>${job.tech.split(',').map(t => `<span class="job-tech">${t.trim()}</span>`).join('')}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterJobs() {
+            const query = document.getElementById('jobSearchInput').value;
+            renderJobs(query);
+        }
+
+        function applyJob(title) {
+            alert(`Application submitted for "${title}" using your registered Resume profile!`);
+        }
+
+        function postJob() {
+            const title = document.getElementById('jobTitle').value;
+            const company = document.getElementById('jobCompany').value;
+            const tech = document.getElementById('jobTech').value;
+            const stipend = document.getElementById('jobStipend').value;
+
+            if (!title || !company || !tech) return alert('Fill required fields');
+
+            const jobs = JSON.parse(localStorage.getItem('cms_jobs'));
+            jobs.unshift({ id: Date.now(), title, company, tech, stipend, desc: "Engineering internship program." });
+            localStorage.setItem('cms_jobs', JSON.stringify(jobs));
+
+            alert('Job posting published!');
+            document.getElementById('jobTitle').value = '';
+            document.getElementById('jobCompany').value = '';
+            document.getElementById('jobTech').value = '';
+            document.getElementById('jobStipend').value = '';
+        }
+
+        // Resume & Career Builder
+        function saveResume() {
+            const name = document.getElementById('resName').value;
+            const skills = document.getElementById('resSkills').value;
+            const projects = document.getElementById('resProjects').value;
+
+            const students = JSON.parse(localStorage.getItem('cms_students'));
+            if (students[currentUser.rollNo]) {
+                students[currentUser.rollNo].resume = { name, skills, projects };
+                localStorage.setItem('cms_students', JSON.stringify(students));
+                renderResumePreview({ name, skills, projects });
+                alert('Resume profile updated!');
+            }
+        }
+
+        function loadResume() {
+            const students = JSON.parse(localStorage.getItem('cms_students'));
+            const res = students[currentUser.rollNo] ? students[currentUser.rollNo].resume : null;
+            if (res && res.name) {
+                document.getElementById('resName').value = res.name || '';
+                document.getElementById('resSkills').value = res.skills || '';
+                document.getElementById('resProjects').value = res.projects || '';
+                renderResumePreview(res);
+            }
+        }
+
+        function renderResumePreview(res) {
+            const preview = document.getElementById('resumePreview');
+            preview.innerHTML = `
+                <h2>${res.name || 'Your Name'}</h2>
+                <p><strong>Roll No:</strong> ${currentUser.rollNo} (B.Tech Candidate)</p>
+                <hr style="margin:10px 0;">
+                <p><strong>Technical Competencies:</strong></p>
+                <p>${res.skills || 'N/A'}</p><br>
+                <p><strong>Engineering Projects:</strong></p>
+                <p>${res.projects || 'N/A'}</p>
+            `;
+        }
+
+        // Attendance & Notices
+        function registerAttendance() {
+            const rollNo = document.getElementById('attRollNo').value.trim().toUpperCase();
+            if (!rollNo) return alert('Enter Roll Number');
+
+            const att = JSON.parse(localStorage.getItem('cms_attendance'));
+            att.unshift({ rollNo, time: new Date().toLocaleTimeString() });
+            localStorage.setItem('cms_attendance', JSON.stringify(att));
+
+            alert(`Attendance logged for ${rollNo}`);
+            document.getElementById('attRollNo').value = '';
+            renderFacultyAttLog();
+        }
+
+        function renderFacultyAttLog() {
+            const att = JSON.parse(localStorage.getItem('cms_attendance'));
+            const log = document.getElementById('facultyAttLog');
+            log.innerHTML = att.map(a => `<p style="font-size:13px;">✔ <strong>${a.rollNo}</strong> - ${a.time}</p>`).join('');
+        }
+
         function postNotice() {
-            const text = document.getElementById('noticeInput').value;
+            const text = document.getElementById('noticeInput').value.trim();
             if (!text) return;
 
             const notices = JSON.parse(localStorage.getItem('cms_notices'));
@@ -307,14 +588,7 @@
 
         function renderNotices() {
             const notices = JSON.parse(localStorage.getItem('cms_notices'));
-            const container = document.getElementById('noticeList');
-            container.innerHTML = notices.map(n => `<div class="notice-item">${n}</div>`).join('');
-        }
-
-        function renderAdminStats() {
-            const attendance = JSON.parse(localStorage.getItem('cms_attendance'));
-            const ul = document.getElementById('adminAttendanceList');
-            ul.innerHTML = attendance.map(a => `<li>Student ${a.studentId} checked in at ${a.time}</li>`).join('');
+            document.getElementById('noticeList').innerHTML = notices.map(n => `<div class="notice-item">${n}</div>`).join('');
         }
     </script>
 </body>
