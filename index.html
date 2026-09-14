@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B.Tech College & Career Management System</title>
+    <title>B.Tech College CMS - Mobile Authentication</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -40,31 +40,25 @@
         .panel-tab { padding: 10px 20px; background: #e9ecef; border: none; cursor: pointer; font-weight: bold; border-radius: 5px 5px 0 0; }
         .panel-tab.active { background: #3498db; color: white; }
 
-        /* Data Tables */
+        /* Tables & Cards */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         table, th, td { border: 1px solid #e0e0e0; }
         th, td { padding: 10px; text-align: left; font-size: 14px; }
         th { background: #f8f9fa; }
 
-        /* Job & Internship Items */
         .job-card { border: 1px solid #e0e0e0; padding: 15px; border-radius: 6px; margin-bottom: 15px; background: #fafafa; }
         .job-card h4 { color: #2c3e50; margin-bottom: 5px; }
         .job-tech { display: inline-block; background: #e1f5fe; color: #0288d1; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin: 5px 5px 5px 0; }
         .apply-btn { width: auto; background: #27ae60; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; float: right; }
-        .apply-btn:hover { background: #2196f3; }
 
-        /* Resume Preview */
         .resume-box { background: #fff; border: 1px solid #ccc; padding: 25px; border-radius: 4px; line-height: 1.6; }
-        .resume-box h2 { border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 10px; }
-
-        /* Miscellaneous */
         .notice-item { background: #e8f4f8; border-left: 4px solid #3498db; padding: 10px; margin-bottom: 10px; border-radius: 3px; }
         #qrcode { display: flex; justify-content: center; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <!-- AUTHENTICATION SECTION (STAGE 1 & 2) -->
+    <!-- AUTHENTICATION SECTION WITH MOBILE VERIFICATION -->
     <div id="authSection" class="auth-container">
         <h2>B.Tech CMS Portal</h2>
         <div class="tab-buttons">
@@ -75,22 +69,22 @@
         <form id="authForm" onsubmit="handleAuth(event)">
             <div class="form-group">
                 <label for="role">Role</label>
-                <select id="role" onchange="toggleRollNumberField()">
+                <select id="role" onchange="toggleMobileField()">
                     <option value="student">Student</option>
                     <option value="faculty">Faculty</option>
                     <option value="admin">Admin Panel</option>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="userId">User ID / Email</label>
-                <input type="text" id="userId" placeholder="Enter ID or Email" required>
+            <div class="form-group" id="mobileGroup">
+                <label for="mobileNo">Registered Mobile Number</label>
+                <input type="text" id="mobileNo" placeholder="e.g. 9876543210">
+                <small style="color:#777;">Access restricted to pre-authorized college phone numbers.</small>
             </div>
 
-            <div class="form-group" id="rollNoGroup">
-                <label for="rollNo">Allowed Roll Number (B.Tech Verification)</label>
-                <input type="text" id="rollNo" placeholder="e.g. BT2024001">
-                <small style="color:#777;">System verifies against university authorization records.</small>
+            <div class="form-group">
+                <label for="userId">User Name / Email</label>
+                <input type="text" id="userId" placeholder="Enter Name or Email" required>
             </div>
 
             <div class="form-group">
@@ -102,7 +96,7 @@
         </form>
     </div>
 
-    <!-- MAIN APPLICATION SECTION (STAGE 3) -->
+    <!-- MAIN APPLICATION SECTION -->
     <div id="appSection" class="hidden">
         <nav>
             <h1 id="welcomeMsg">College & Career Portal</h1>
@@ -113,7 +107,6 @@
         </nav>
 
         <div class="container">
-            <!-- Global Noticeboard -->
             <div class="card">
                 <h3>Campus Notices & Announcements</h3>
                 <div id="noticeList">No active announcements.</div>
@@ -127,7 +120,6 @@
                     <button class="panel-tab" onclick="switchStudentTab('career')">Resume & Career Builder</button>
                 </div>
 
-                <!-- Tab 1: Academics & QR -->
                 <div id="tabAcademics">
                     <div class="grid">
                         <div class="card">
@@ -151,18 +143,16 @@
                     </div>
                 </div>
 
-                <!-- Tab 2: B.Tech Internship Search -->
                 <div id="tabInternships" class="hidden">
                     <div class="card">
                         <h3>Published B.Tech Internships & Entry-Level Jobs</h3>
                         <div class="form-group">
-                            <input type="text" id="jobSearchInput" placeholder="Filter by technology or role (e.g. React, Python, Web)..." onkeyup="filterJobs()">
+                            <input type="text" id="jobSearchInput" placeholder="Filter by technology or role..." onkeyup="filterJobs()">
                         </div>
                         <div id="jobListings"></div>
                     </div>
                 </div>
 
-                <!-- Tab 3: Resume Builder & Career Readiness -->
                 <div id="tabCareer" class="hidden">
                     <div class="grid">
                         <div class="card">
@@ -197,8 +187,8 @@
                     <div class="card">
                         <h3>Publish Academic Grades</h3>
                         <div class="form-group">
-                            <label>Student Roll Number</label>
-                            <input type="text" id="markRollNo" placeholder="e.g. BT2024001">
+                            <label>Student Mobile Number</label>
+                            <input type="text" id="markMobile" placeholder="e.g. 9876543210">
                         </div>
                         <div class="form-group">
                             <label>Subject</label>
@@ -214,8 +204,8 @@
                     <div class="card">
                         <h3>Attendance Registration</h3>
                         <div class="form-group">
-                            <label>Student Roll Number</label>
-                            <input type="text" id="attRollNo" placeholder="e.g. BT2024001">
+                            <label>Student Mobile Number</label>
+                            <input type="text" id="attMobile" placeholder="e.g. 9876543210">
                         </div>
                         <button class="btn-primary" onclick="registerAttendance()">Log Attendance</button>
                         <br><br>
@@ -258,13 +248,18 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
-        // STAGE 2: Database Initialization (LocalStorage)
-        const AUTHORIZED_STUDENT_ROLLS = ["BT2024001", "BT2024002", "BT2024003", "BT2024004", "BT2024005"];
+        // PRE-AUTHORIZED MOBILE NUMBERS DATABASE
+        const AUTHORIZED_MOBILE_NUMBERS = [
+            "9876543210", 
+            "9876543211", 
+            "9876543212", 
+            "9876543213", 
+            "9876543214"
+        ];
 
         if (!localStorage.getItem('cms_notices')) {
             localStorage.setItem('cms_notices', JSON.stringify([
@@ -294,57 +289,58 @@
             buttons[0].classList.toggle('active', mode === 'login');
             buttons[1].classList.toggle('active', mode === 'register');
             document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Login' : 'Register Account';
-            toggleRollNumberField();
+            toggleMobileField();
         }
 
-        function toggleRollNumberField() {
+        function toggleMobileField() {
             const role = document.getElementById('role').value;
-            const rollGroup = document.getElementById('rollNoGroup');
+            const mobileGroup = document.getElementById('mobileGroup');
             if (role === 'student') {
-                rollGroup.classList.remove('hidden');
+                mobileGroup.classList.remove('hidden');
             } else {
-                rollGroup.classList.add('hidden');
+                mobileGroup.classList.add('hidden');
             }
         }
 
-        // STAGE 1 & 2: Authentication with B.Tech Authorization
+        // MOBILE-BASED AUTHENTICATION FUNCTION
         function handleAuth(event) {
             event.preventDefault();
             const role = document.getElementById('role').value;
             const userId = document.getElementById('userId').value.trim();
-            const rollNo = document.getElementById('rollNo').value.trim().toUpperCase();
+            const mobileNo = document.getElementById('mobileNo').value.trim();
             const password = document.getElementById('password').value;
 
             const registeredStudents = JSON.parse(localStorage.getItem('cms_students'));
 
             if (role === 'student') {
-                if (!AUTHORIZED_STUDENT_ROLLS.includes(rollNo)) {
-                    alert('AUTHENTICATION ERROR: Roll Number is not pre-authorized for admission in B.Tech database.');
+                // Step 1: Check if mobile number is pre-authorized
+                if (!AUTHORIZED_MOBILE_NUMBERS.includes(mobileNo)) {
+                    alert('AUTHENTICATION DENIED: Mobile number (' + mobileNo + ') is not registered in the pre-authorized student database.');
                     return;
                 }
 
                 if (authMode === 'register') {
-                    if (registeredStudents[rollNo]) {
-                        alert('Account already exists for this Roll Number. Please Login.');
+                    if (registeredStudents[mobileNo]) {
+                        alert('Account already exists for this Mobile Number. Please Login.');
                         return;
                     }
-                    registeredStudents[rollNo] = { userId, password, rollNo, feePaid: false, resume: {} };
+                    registeredStudents[mobileNo] = { userId, password, mobileNo, feePaid: false, resume: {} };
                     localStorage.setItem('cms_students', JSON.stringify(registeredStudents));
                     alert('Registration Successful! You can now log in.');
                     switchAuthMode('login');
                     return;
                 } else {
-                    if (!registeredStudents[rollNo] || registeredStudents[rollNo].password !== password) {
-                        alert('Invalid Credentials or account not registered.');
+                    if (!registeredStudents[mobileNo] || registeredStudents[mobileNo].password !== password) {
+                        alert('Invalid Credentials or account not registered with this Mobile Number.');
                         return;
                     }
                 }
             }
 
-            currentUser = { role, userId, rollNo: role === 'student' ? rollNo : null };
+            currentUser = { role, userId, mobileNo: role === 'student' ? mobileNo : null };
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('appSection').classList.remove('hidden');
-            document.getElementById('userBadge').innerText = `${role.toUpperCase()} | ${currentUser.rollNo || currentUser.userId}`;
+            document.getElementById('userBadge').innerText = `${role.toUpperCase()} | Phone: ${currentUser.mobileNo || currentUser.userId}`;
 
             renderDashboards();
         }
@@ -356,7 +352,6 @@
             document.getElementById('qrcode').innerHTML = "";
         }
 
-        // STAGE 3: Full Functional System Dashboards
         function renderDashboards() {
             document.getElementById('studentDashboard').classList.add('hidden');
             document.getElementById('facultyDashboard').classList.add('hidden');
@@ -379,7 +374,6 @@
             }
         }
 
-        // Student Navigation Tabs
         function switchStudentTab(tabName) {
             document.getElementById('tabAcademics').classList.toggle('hidden', tabName !== 'academics');
             document.getElementById('tabInternships').classList.toggle('hidden', tabName !== 'internships');
@@ -391,31 +385,29 @@
             tabs[2].classList.toggle('active', tabName === 'career');
         }
 
-        // QR Code Feature
         function generateStudentQR() {
             const container = document.getElementById('qrcode');
             container.innerHTML = "";
             new QRCode(container, {
-                text: JSON.stringify({ rollNo: currentUser.rollNo, date: new Date().toLocaleDateString() }),
+                text: JSON.stringify({ mobileNo: currentUser.mobileNo, date: new Date().toLocaleDateString() }),
                 width: 120,
                 height: 120
             });
         }
 
-        // Academic Marks
         function submitGrade() {
-            const rollNo = document.getElementById('markRollNo').value.trim().toUpperCase();
+            const mobileNo = document.getElementById('markMobile').value.trim();
             const subject = document.getElementById('markSubject').value.trim();
             const score = document.getElementById('markScore').value;
 
-            if (!rollNo || !subject || !score) return alert('Fill out all fields');
+            if (!mobileNo || !subject || !score) return alert('Fill out all fields');
 
             const marks = JSON.parse(localStorage.getItem('cms_marks'));
-            marks.push({ rollNo, subject, score });
+            marks.push({ mobileNo, subject, score });
             localStorage.setItem('cms_marks', JSON.stringify(marks));
 
             alert('Grade successfully logged!');
-            document.getElementById('markRollNo').value = '';
+            document.getElementById('markMobile').value = '';
             document.getElementById('markSubject').value = '';
             document.getElementById('markScore').value = '';
         }
@@ -425,7 +417,7 @@
             const tbody = document.getElementById('studentMarksTable');
             tbody.innerHTML = '';
 
-            const studentMarks = marks.filter(m => m.rollNo === currentUser.rollNo);
+            const studentMarks = marks.filter(m => m.mobileNo === currentUser.mobileNo);
             if (studentMarks.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="3">No subject marks posted yet.</td></tr>';
                 return;
@@ -439,11 +431,10 @@
             });
         }
 
-        // Fee Management
         function payFees() {
             const students = JSON.parse(localStorage.getItem('cms_students'));
-            if (students[currentUser.rollNo]) {
-                students[currentUser.rollNo].feePaid = true;
+            if (students[currentUser.mobileNo]) {
+                students[currentUser.mobileNo].feePaid = true;
                 localStorage.setItem('cms_students', JSON.stringify(students));
                 renderFeeStatus();
                 alert('Semester Tuition Fee Paid Successfully!');
@@ -452,12 +443,11 @@
 
         function renderFeeStatus() {
             const students = JSON.parse(localStorage.getItem('cms_students'));
-            const isPaid = students[currentUser.rollNo] ? students[currentUser.rollNo].feePaid : false;
+            const isPaid = students[currentUser.mobileNo] ? students[currentUser.mobileNo].feePaid : false;
             const text = document.getElementById('feeStatusText');
             text.innerHTML = `Status: <strong style="color:${isPaid ? 'green' : 'red'}">${isPaid ? 'CLEARED / PAID' : 'UNPAID / PENDING'}</strong>`;
         }
 
-        // Internship Portal
         function renderJobs(filter = "") {
             const jobs = JSON.parse(localStorage.getItem('cms_jobs'));
             const container = document.getElementById('jobListings');
@@ -493,7 +483,7 @@
         }
 
         function applyJob(title) {
-            alert(`Application submitted for "${title}" using your registered Resume profile!`);
+            alert(`Application submitted for "${title}" using your registered profile!`);
         }
 
         function postJob() {
@@ -515,15 +505,14 @@
             document.getElementById('jobStipend').value = '';
         }
 
-        // Resume & Career Builder
         function saveResume() {
             const name = document.getElementById('resName').value;
             const skills = document.getElementById('resSkills').value;
             const projects = document.getElementById('resProjects').value;
 
             const students = JSON.parse(localStorage.getItem('cms_students'));
-            if (students[currentUser.rollNo]) {
-                students[currentUser.rollNo].resume = { name, skills, projects };
+            if (students[currentUser.mobileNo]) {
+                students[currentUser.mobileNo].resume = { name, skills, projects };
                 localStorage.setItem('cms_students', JSON.stringify(students));
                 renderResumePreview({ name, skills, projects });
                 alert('Resume profile updated!');
@@ -532,7 +521,7 @@
 
         function loadResume() {
             const students = JSON.parse(localStorage.getItem('cms_students'));
-            const res = students[currentUser.rollNo] ? students[currentUser.rollNo].resume : null;
+            const res = students[currentUser.mobileNo] ? students[currentUser.mobileNo].resume : null;
             if (res && res.name) {
                 document.getElementById('resName').value = res.name || '';
                 document.getElementById('resSkills').value = res.skills || '';
@@ -545,7 +534,7 @@
             const preview = document.getElementById('resumePreview');
             preview.innerHTML = `
                 <h2>${res.name || 'Your Name'}</h2>
-                <p><strong>Roll No:</strong> ${currentUser.rollNo} (B.Tech Candidate)</p>
+                <p><strong>Mobile:</strong> ${currentUser.mobileNo} (Verified Candidate)</p>
                 <hr style="margin:10px 0;">
                 <p><strong>Technical Competencies:</strong></p>
                 <p>${res.skills || 'N/A'}</p><br>
@@ -554,24 +543,23 @@
             `;
         }
 
-        // Attendance & Notices
         function registerAttendance() {
-            const rollNo = document.getElementById('attRollNo').value.trim().toUpperCase();
-            if (!rollNo) return alert('Enter Roll Number');
+            const mobileNo = document.getElementById('attMobile').value.trim();
+            if (!mobileNo) return alert('Enter Mobile Number');
 
             const att = JSON.parse(localStorage.getItem('cms_attendance'));
-            att.unshift({ rollNo, time: new Date().toLocaleTimeString() });
+            att.unshift({ mobileNo, time: new Date().toLocaleTimeString() });
             localStorage.setItem('cms_attendance', JSON.stringify(att));
 
-            alert(`Attendance logged for ${rollNo}`);
-            document.getElementById('attRollNo').value = '';
+            alert(`Attendance logged for ${mobileNo}`);
+            document.getElementById('attMobile').value = '';
             renderFacultyAttLog();
         }
 
         function renderFacultyAttLog() {
             const att = JSON.parse(localStorage.getItem('cms_attendance'));
             const log = document.getElementById('facultyAttLog');
-            log.innerHTML = att.map(a => `<p style="font-size:13px;">✔ <strong>${a.rollNo}</strong> - ${a.time}</p>`).join('');
+            log.innerHTML = att.map(a => `<p style="font-size:13px;">✔ <strong>${a.mobileNo}</strong> - ${a.time}</p>`).join('');
         }
 
         function postNotice() {
