@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f4f6f9; color: #333; }
+        .hidden { display: none !important; }
+        
+        /* Auth Styles */
+        .auth-container { max-width: 400px; margin: 80px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .auth-container h2 { margin-bottom: 20px; text-align: center; color: #2c3e50; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 10px; background: #3498db; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #2980b9; }
+
+        /* Dashboard Styles */
+        nav { background: #2c3e50; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        nav h1 { font-size: 20px; }
+        nav button { width: auto; background: #e74c3c; padding: 8px 15px; }
+        nav button:hover { background: #c0392b; }
+        
+        .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card h3 { border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 15px; color: #2c3e50; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table, th, td { border: 1px solid #ddd; }
+        th, td { padding: 10px; text-align: left; }
+        th { background: #f2f2f2; }
+        
+        #qrcode { margin-top: 15px; display: flex; justify-content: center; }
+        .notice-item { background: #edf7ed; border-left: 4px solid #2e7d32; padding: 10px; margin-bottom: 10px; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+    <!-- STAGE 1 & 2: Authentication & Role Management -->
+    <div id="authSection" class="auth-container">
+        <h2>College Portal Login</h2>
+        <div class="form-group">
+            <label for="username">User ID / Email</label>
+            <input type="text" id="username" placeholder="Enter ID">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter Password">
+        </div>
+        <div class="form-group">
+            <label for="role">Select Role</label>
+            <select id="role">
+                <option value="student">Student</option>
+                <option value="faculty">Faculty</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- STAGE 3: Full Functional System Layout -->
+    <div id="appSection" class="hidden">
+        <nav>
+            <h1 id="welcomeMsg">College Management System</h1>
+            <button onclick="logout()">Logout</button>
+        </nav>
+
+        <div class="container">
+            <!-- Notices Section (Visible to All) -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h3>Announcements & Notices</h3>
+                <div id="noticeList">No notices posted yet.</div>
+            </div>
+
+            <!-- Student Dashboard -->
+            <div id="studentDashboard" class="hidden">
+                <div class="grid">
+                    <div class="card">
+                        <h3>Attendance QR Code</h3>
+                        <p>Scan this QR code to register attendance for today.</p>
+                        <div id="qrcode"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Academic Marks</h3>
+                        <table>
+                            <thead><tr><th>Subject</th><th>Marks</th></tr></thead>
+                            <tbody id="studentMarksBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h3>Fee Payment Status</h3>
+                        <p>Total Tuition Fee: <strong>$5,000</strong></p>
+                        <p id="feeStatus">Status: Pending</p>
+                        <br>
+                        <button onclick="payFees()">Pay Fees Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty Dashboard -->
+            <div id="facultyDashboard" class="hidden">
+                <div class="grid">
+                    <div class="card">
+                        <h3>Enter Marks</h3>
+                        <div class="form-group">
+                            <label>Student ID</label>
+                            <input type="text" id="markStudentId" placeholder="e.g. STU101">
+                        </div>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <input type="text" id="markSubject" placeholder="e.g. Mathematics">
+                        </div>
+                        <div class="form-group">
+                            <label>Score</label>
+                            <input type="number" id="markScore" placeholder="e.g. 85">
+                        </div>
+                        <button onclick="submitMark()">Submit Mark</button>
+                    </div>
+                    <div class="card">
+                        <h3>Mark Attendance (Manual/QR)</h3>
+                        <div class="form-group">
+                            <label>Student ID</label>
+                            <input type="text" id="attStudentId" placeholder="e.g. STU101">
+                        </div>
+                        <button onclick="markAttendance()">Record Attendance</button>
+                        <div id="attendanceLog" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Panel Dashboard -->
+            <div id="adminDashboard" class="hidden">
+                <div class="grid">
+                    <div class="card">
+                        <h3>Post Notice</h3>
+                        <div class="form-group">
+                            <label>Notice Content</label>
+                            <input type="text" id="noticeInput" placeholder="Enter notice details...">
+                        </div>
+                        <button onclick="postNotice()">Publish Notice</button>
+                    </div>
+                    <div class="card">
+                        <h3>System Stats & Database Records</h3>
+                        <p>Total Registered Students: <strong>120</strong></p>
+                        <p>Total Active Faculty: <strong>15</strong></p>
+                        <br>
+                        <h4>Recent Attendance Log</h4>
+                        <ul id="adminAttendanceList"></ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Database Initialization (LocalStorage)
+        if (!localStorage.getItem('cms_marks')) localStorage.setItem('cms_marks', JSON.stringify([]));
+        if (!localStorage.getItem('cms_notices')) localStorage.setItem('cms_notices', JSON.stringify(["Welcome to the new academic year!"]));
+        if (!localStorage.getItem('cms_attendance')) localStorage.setItem('cms_attendance', JSON.stringify([]));
+        if (!localStorage.getItem('cms_fee_paid')) localStorage.setItem('cms_fee_paid', "false");
+
+        let currentUser = null;
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const role = document.getElementById('role').value;
+
+            if (!username) {
+                alert('Please enter a User ID');
+                return;
+            }
+
+            currentUser = { id: username, role: role };
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+            document.getElementById('welcomeMsg').innerText = `College Management System - ${role.toUpperCase()} (${username})`;
+
+            renderDashboard();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('appSection').classList.add('hidden');
+            document.getElementById('qrcode').innerHTML = "";
+        }
+
+        function renderDashboard() {
+            // Hide all dashboards first
+            document.getElementById('studentDashboard').classList.add('hidden');
+            document.getElementById('facultyDashboard').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+
+            renderNotices();
+
+            if (currentUser.role === 'student') {
+                document.getElementById('studentDashboard').classList.remove('hidden');
+                generateQRCode();
+                renderStudentMarks();
+                renderFeeStatus();
+            } else if (currentUser.role === 'faculty') {
+                document.getElementById('facultyDashboard').classList.remove('hidden');
+                renderAttendanceLog();
+            } else if (currentUser.role === 'admin') {
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                renderAdminStats();
+            }
+        }
+
+        // Attendance QR Code Feature
+        function generateQRCode() {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = "";
+            new QRCode(qrContainer, {
+                text: JSON.stringify({ studentId: currentUser.id, timestamp: new Date().toISOString() }),
+                width: 128,
+                height: 128
+            });
+        }
+
+        // Marks Feature
+        function submitMark() {
+            const studentId = document.getElementById('markStudentId').value;
+            const subject = document.getElementById('markSubject').value;
+            const score = document.getElementById('markScore').value;
+
+            if (!studentId || !subject || !score) return alert('Fill all fields');
+
+            const marks = JSON.parse(localStorage.getItem('cms_marks'));
+            marks.push({ studentId, subject, score });
+            localStorage.setItem('cms_marks', JSON.stringify(marks));
+
+            alert('Mark updated successfully!');
+            document.getElementById('markStudentId').value = '';
+            document.getElementById('markSubject').value = '';
+            document.getElementById('markScore').value = '';
+        }
+
+        function renderStudentMarks() {
+            const marks = JSON.parse(localStorage.getItem('cms_marks'));
+            const tbody = document.getElementById('studentMarksBody');
+            tbody.innerHTML = '';
+            
+            const userMarks = marks.filter(m => m.studentId === currentUser.id);
+            if (userMarks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2">No marks recorded yet.</td></tr>';
+                return;
+            }
+
+            userMarks.forEach(m => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${m.subject}</td><td>${m.score}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Attendance Recording Feature
+        function markAttendance() {
+            const studentId = document.getElementById('attStudentId').value;
+            if (!studentId) return alert('Enter Student ID');
+
+            const attendance = JSON.parse(localStorage.getItem('cms_attendance'));
+            attendance.push({ studentId, time: new Date().toLocaleTimeString() });
+            localStorage.setItem('cms_attendance', JSON.stringify(attendance));
+
+            alert(`Attendance recorded for ${studentId}`);
+            document.getElementById('attStudentId').value = '';
+            renderAttendanceLog();
+        }
+
+        function renderAttendanceLog() {
+            const attendance = JSON.parse(localStorage.getItem('cms_attendance'));
+            const logDiv = document.getElementById('attendanceLog');
+            logDiv.innerHTML = '<h4>Today\'s Log:</h4>' + attendance.map(a => `<p>${a.studentId} logged at ${a.time}</p>`).join('');
+        }
+
+        // Fee Payment Feature
+        function payFees() {
+            localStorage.setItem('cms_fee_paid', "true");
+            renderFeeStatus();
+            alert('Fees Paid Successfully!');
+        }
+
+        function renderFeeStatus() {
+            const isPaid = localStorage.getItem('cms_fee_paid') === "true";
+            document.getElementById('feeStatus').innerHTML = `Status: <strong style="color: ${isPaid ? 'green' : 'red'};">${isPaid ? 'PAID' : 'PENDING'}</strong>`;
+        }
+
+        // Notice Board Feature
+        function postNotice() {
+            const text = document.getElementById('noticeInput').value;
+            if (!text) return;
+
+            const notices = JSON.parse(localStorage.getItem('cms_notices'));
+            notices.unshift(text);
+            localStorage.setItem('cms_notices', JSON.stringify(notices));
+
+            document.getElementById('noticeInput').value = '';
+            renderNotices();
+        }
+
+        function renderNotices() {
+            const notices = JSON.parse(localStorage.getItem('cms_notices'));
+            const container = document.getElementById('noticeList');
+            container.innerHTML = notices.map(n => `<div class="notice-item">${n}</div>`).join('');
+        }
+
+        function renderAdminStats() {
+            const attendance = JSON.parse(localStorage.getItem('cms_attendance'));
+            const ul = document.getElementById('adminAttendanceList');
+            ul.innerHTML = attendance.map(a => `<li>Student ${a.studentId} checked in at ${a.time}</li>`).join('');
+        }
+    </script>
+</body>
+</html>
