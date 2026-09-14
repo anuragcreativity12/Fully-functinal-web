@@ -3,580 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B.Tech College CMS - Mobile Authentication</title>
+    <title>B.Tech College Management System</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #f0f2f5; color: #1c1e21; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #f4f7fe; color: #2b3674; display: flex; height: 100vh; overflow: hidden; }
         .hidden { display: none !important; }
 
-        /* Navigation */
-        nav { background: #1a252f; color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        nav h1 { font-size: 20px; font-weight: 600; }
-        .nav-right { display: flex; align-items: center; gap: 15px; }
-        .logout-btn { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; }
-        .logout-btn:hover { background: #c0392b; }
-
-        /* Layout */
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .card h3 { border-bottom: 2px solid #3498db; padding-bottom: 8px; margin-bottom: 15px; color: #2c3e50; font-size: 18px; }
-
         /* Auth Screen */
-        .auth-container { max-width: 450px; margin: 60px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .auth-container h2 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
-        .tab-buttons { display: flex; margin-bottom: 20px; border-bottom: 1px solid #ddd; }
-        .tab-btn { flex: 1; padding: 10px; background: none; border: none; cursor: pointer; font-weight: bold; color: #777; }
-        .tab-btn.active { color: #3498db; border-bottom: 2px solid #3498db; }
+        .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .auth-card { background: #fff; width: 420px; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .auth-card h2 { text-align: center; color: #1b2559; margin-bottom: 20px; }
+        .tab-buttons { display: flex; border-bottom: 2px solid #e9edf7; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 10px; background: none; border: none; font-weight: 600; cursor: pointer; color: #a3ed; }
+        .tab-btn.active { color: #4318ff; border-bottom: 2px solid #4318ff; }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-        .btn-primary { width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .btn-primary:hover { background: #2980b9; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: #1b2559; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #e0e5f2; border-radius: 8px; font-size: 14px; outline: none; }
+        .btn-primary { width: 100%; padding: 12px; background: #4318ff; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-primary:hover { background: #3311db; }
 
-        /* Tabs for Student Panel */
-        .panel-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
-        .panel-tab { padding: 10px 20px; background: #e9ecef; border: none; cursor: pointer; font-weight: bold; border-radius: 5px 5px 0 0; }
-        .panel-tab.active { background: #3498db; color: white; }
+        /* Sidebar Navigation Layout */
+        #appLayout { display: flex; width: 100vw; height: 100vh; }
+        aside { width: 250px; background: #111c44; color: #a3eedd; display: flex; flex-direction: column; flex-shrink: 0; }
+        .brand { padding: 25px 20px; color: #fff; font-size: 18px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .nav-menu { list-style: none; padding: 15px 10px; flex: 1; overflow-y: auto; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 4px; color: #8f9bba; font-size: 14px; font-weight: 500; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .nav-item:hover, .nav-item.active { background: #1b2559; color: #fff; }
+        .nav-item.active { border-left: 4px solid #4318ff; }
+        .nav-icon { font-size: 16px; width: 20px; text-align: center; }
 
-        /* Tables & Cards */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        table, th, td { border: 1px solid #e0e0e0; }
-        th, td { padding: 10px; text-align: left; font-size: 14px; }
-        th { background: #f8f9fa; }
+        /* Main Workspace */
+        main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #f4f7fe; }
+        header { background: #fff; height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .header-title { font-size: 20px; font-weight: 700; color: #1b2559; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-badge { background: #f4f7fe; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 13px; color: #4318ff; }
+        .logout-btn { background: #ee5d50; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
 
-        .job-card { border: 1px solid #e0e0e0; padding: 15px; border-radius: 6px; margin-bottom: 15px; background: #fafafa; }
-        .job-card h4 { color: #2c3e50; margin-bottom: 5px; }
-        .job-tech { display: inline-block; background: #e1f5fe; color: #0288d1; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin: 5px 5px 5px 0; }
-        .apply-btn { width: auto; background: #27ae60; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; float: right; }
+        /* Content Container */
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        .page-header { margin-bottom: 25px; }
+        .page-title { font-size: 24px; font-weight: 700; color: #1b2559; display: flex; align-items: center; gap: 10px; }
+        .page-subtitle { color: #a3eedd; font-size: 14px; margin-top: 4px; }
 
-        .resume-box { background: #fff; border: 1px solid #ccc; padding: 25px; border-radius: 4px; line-height: 1.6; }
-        .notice-item { background: #e8f4f8; border-left: 4px solid #3498db; padding: 10px; margin-bottom: 10px; border-radius: 3px; }
-        #qrcode { display: flex; justify-content: center; margin-top: 15px; }
+        .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
+        /* Table Design matching Screenshot */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid #e0e5f2; font-size: 14px; }
+        th { color: #8f9bba; font-weight: 600; text-transform: uppercase; font-size: 12px; background: #fafbfc; }
+        td { color: #2b3674; font-weight: 500; }
+
+        /* Job & Notice Cards */
+        .item-card { border: 1px solid #e0e5f2; padding: 15px; border-radius: 8px; margin-bottom: 12px; }
+        .tech-pill { display: inline-block; background: #e9edf7; color: #4318ff; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-right: 5px; }
+        #qrcode { display: flex; justify-content: center; padding: 15px; }
     </style>
 </head>
 <body>
 
-    <!-- AUTHENTICATION SECTION WITH MOBILE VERIFICATION -->
-    <div id="authSection" class="auth-container">
-        <h2>B.Tech CMS Portal</h2>
-        <div class="tab-buttons">
-            <button class="tab-btn active" onclick="switchAuthMode('login')">Login</button>
-            <button class="tab-btn" onclick="switchAuthMode('register')">Register Student</button>
+    <!-- AUTHENTICATION SCREEN -->
+    <div id="authOverlay" class="auth-overlay">
+        <div class="auth-card">
+            <h2>Portal Sign In</h2>
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="setAuthMode('login')">Login</button>
+                <button class="tab-btn" onclick="setAuthMode('register')">Register Student</button>
+            </div>
+            <form onsubmit="handleAuth(event)">
+                <div class="form-group">
+                    <label>User Role</label>
+                    <select id="roleSelect" onchange="toggleAuthFields()">
+                        <option value="student">Student</option>
+                        <option value="faculty">Faculty</option>
+                        <option value="admin">Admin Panel</option>
+                    </select>
+                </div>
+                <div class="form-group" id="mobileGroup">
+                    <label>Authorized Mobile Number</label>
+                    <input type="text" id="mobileInput" placeholder="e.g. 9876543210">
+                </div>
+                <div class="form-group">
+                    <label>Full Name / User ID</label>
+                    <input type="text" id="userInput" placeholder="Enter identification" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="passInput" required>
+                </div>
+                <button type="submit" id="authSubmit" class="btn-primary">Login</button>
+            </form>
         </div>
-
-        <form id="authForm" onsubmit="handleAuth(event)">
-            <div class="form-group">
-                <label for="role">Role</label>
-                <select id="role" onchange="toggleMobileField()">
-                    <option value="student">Student</option>
-                    <option value="faculty">Faculty</option>
-                    <option value="admin">Admin Panel</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="mobileGroup">
-                <label for="mobileNo">Registered Mobile Number</label>
-                <input type="text" id="mobileNo" placeholder="e.g. 9876543210">
-                <small style="color:#777;">Access restricted to pre-authorized college phone numbers.</small>
-            </div>
-
-            <div class="form-group">
-                <label for="userId">User Name / Email</label>
-                <input type="text" id="userId" placeholder="Enter Name or Email" required>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" required>
-            </div>
-
-            <button type="submit" id="authSubmitBtn" class="btn-primary">Login</button>
-        </form>
     </div>
 
-    <!-- MAIN APPLICATION SECTION -->
-    <div id="appSection" class="hidden">
-        <nav>
-            <h1 id="welcomeMsg">College & Career Portal</h1>
-            <div class="nav-right">
-                <span id="userBadge" style="background:#34495e; padding:5px 10px; border-radius:4px; font-size:14px;"></span>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
-        </nav>
+    <!-- APP LAYOUT -->
+    <div id="appLayout" class="hidden">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside>
+            <div class="brand">🏫 B.Tech Portal</div>
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="navigateTo('dashboard', this)"><span class="nav-icon">🏠</span> Dashboard</li>
+                <li class="nav-item" onclick="navigateTo('timetable', this)"><span class="nav-icon">📅</span> Timetable</li>
+                <li class="nav-item" onclick="navigateTo('attendance', this)"><span class="nav-icon">📊</span> Attendance</li>
+                <li class="nav-item" onclick="navigateTo('assignments', this)"><span class="nav-icon">📝</span> Assignments</li>
+                <li class="nav-item" onclick="navigateTo('materials', this)"><span class="nav-icon">📚</span> Materials</li>
+                <li class="nav-item" onclick="navigateTo('exams', this)"><span class="nav-icon">📄</span> Exams</li>
+                <li class="nav-item" onclick="navigateTo('results', this)"><span class="nav-icon">📈</span> Results</li>
+                <li class="nav-item" onclick="navigateTo('fees', this)"><span class="nav-icon">💰</span> Fees</li>
+                <li class="nav-item" onclick="navigateTo('notices', this)"><span class="nav-icon">📢</span> Notices</li>
+                <li class="nav-item" onclick="navigateTo('faculty', this)"><span class="nav-icon">👨‍🏫</span> Faculty</li>
+                <li class="nav-item" onclick="navigateTo('helpdesk', this)"><span class="nav-icon">🎫</span> Helpdesk</li>
+                <li class="nav-item" onclick="navigateTo('career', this)"><span class="nav-icon">💼</span> Resume & Career</li>
+            </ul>
+        </aside>
 
-        <div class="container">
-            <div class="card">
-                <h3>Campus Notices & Announcements</h3>
-                <div id="noticeList">No active announcements.</div>
-            </div>
-
-            <!-- STUDENT DASHBOARD -->
-            <div id="studentDashboard" class="hidden">
-                <div class="panel-nav">
-                    <button class="panel-tab active" onclick="switchStudentTab('academics')">Academics & Attendance</button>
-                    <button class="panel-tab" onclick="switchStudentTab('internships')">Internship Search</button>
-                    <button class="panel-tab" onclick="switchStudentTab('career')">Resume & Career Builder</button>
+        <!-- MAIN CONTENT AREA -->
+        <main>
+            <header>
+                <div class="header-title" id="headerTitle">Dashboard</div>
+                <div class="user-info">
+                    <span id="userBadge" class="user-badge">Student</span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
                 </div>
+            </header>
 
-                <div id="tabAcademics">
+            <div class="content">
+
+                <!-- 1. DASHBOARD TAB -->
+                <div id="viewDashboard" class="view-panel">
+                    <div class="page-header">
+                        <div class="page-title">🏠 Academic Dashboard</div>
+                        <div class="page-subtitle">Overview & Daily Summary</div>
+                    </div>
                     <div class="grid">
                         <div class="card">
-                            <h3>Attendance QR Token</h3>
-                            <p>Show this code to faculty for daily lecture check-in.</p>
+                            <h3>Welcome Back!</h3>
+                            <p style="margin-top:10px;">Select any option from the sidebar to access your academic timetable, results, assignments, or career listings.</p>
+                        </div>
+                        <div class="card">
+                            <h3>Live Attendance QR Token</h3>
                             <div id="qrcode"></div>
                         </div>
-                        <div class="card">
-                            <h3>Academic Marks & Transcript</h3>
-                            <table>
-                                <thead><tr><th>Subject</th><th>Score</th><th>Status</th></tr></thead>
-                                <tbody id="studentMarksTable"></tbody>
-                            </table>
-                        </div>
-                        <div class="card">
-                            <h3>Tuition Fee Clearance</h3>
-                            <p>Semester Fee Amount: <strong>$4,500</strong></p>
-                            <p id="feeStatusText">Status: Checking...</p><br>
-                            <button class="btn-primary" onclick="payFees()">Clear Semester Fees</button>
-                        </div>
                     </div>
                 </div>
 
-                <div id="tabInternships" class="hidden">
+                <!-- 2. TIMETABLE TAB (MATCHING SCREENSHOT) -->
+                <div id="viewTimetable" class="view-panel hidden">
+                    <div class="page-header">
+                        <div class="page-title">📅 Timetable</div>
+                        <div class="page-subtitle">Semester 7 — Weekly Schedule</div>
+                    </div>
                     <div class="card">
-                        <h3>Published B.Tech Internships & Entry-Level Jobs</h3>
-                        <div class="form-group">
-                            <input type="text" id="jobSearchInput" placeholder="Filter by technology or role..." onkeyup="filterJobs()">
-                        </div>
-                        <div id="jobListings"></div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Monday</th>
+                                    <th>Tuesday</th>
+                                    <th>Wednesday</th>
+                                    <th>Thursday</th>
+                                    <th>Friday</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>10:00–11:00</td>
+                                    <td>DBMS</td>
+                                    <td>Java</td>
+                                    <td>AI</td>
+                                    <td>Networks</td>
+                                    <td>DBMS</td>
+                                </tr>
+                                <tr>
+                                    <td>11:00–12:00</td>
+                                    <td>Java</td>
+                                    <td>AI</td>
+                                    <td>Networks</td>
+                                    <td>DBMS</td>
+                                    <td>AI</td>
+                                </tr>
+                                <tr>
+                                    <td>12:00–01:00</td>
+                                    <td>Lab</td>
+                                    <td>Lab</td>
+                                    <td>Break</td>
+                                    <td>Lab</td>
+                                    <td>Project</td>
+                                </tr>
+                                <tr>
+                                    <td>02:00–03:00</td>
+                                    <td>AI</td>
+                                    <td>Networks</td>
+                                    <td>DBMS</td>
+                                    <td>Java</td>
+                                    <td>Seminar</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div id="tabCareer" class="hidden">
+                <!-- 3. ATTENDANCE TAB -->
+                <div id="viewAttendance" class="view-panel hidden">
+                    <div class="page-header">
+                        <div class="page-title">📊 Attendance Tracking</div>
+                    </div>
+                    <div class="card">
+                        <h3>Attendance Log</h3>
+                        <div id="attLogList" style="margin-top:10px;">No check-in entries logged.</div>
+                    </div>
+                </div>
+
+                <!-- 4. ASSIGNMENTS TAB -->
+                <div id="viewAssignments" class="view-panel hidden">
+                    <div class="page-header"><div class="page-title">📝 Assignments</div></div>
+                    <div class="card">
+                        <div class="item-card">
+                            <h4>DBMS Project Report</h4>
+                            <p>Deadline: Oct 15, 2026</p>
+                            <small>Status: Pending Submission</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. MATERIALS TAB -->
+                <div id="viewMaterials" class="view-panel hidden">
+                    <div class="page-header"><div class="page-title">📚 Study Materials</div></div>
+                    <div class="card">
+                        <ul>
+                            <li>📄 Artificial Intelligence Unit 1 Lecture Notes.pdf</li>
+                            <li>📄 Java Advanced Multithreading Guide.pdf</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 6. EXAMS TAB -->
+                <div id="viewExams" class="view-panel hidden">
+                    <div class="page-header"><div class="page-title">📄 Mid-Term Exam Schedule</div></div>
+                    <div class="card">
+                        <p><strong>Database Management Systems:</strong> Oct 20, 2026 (10:00 AM)</p>
+                        <p><strong>Java Programming:</strong> Oct 22, 2026 (10:00 AM)</p>
+                    </div>
+                </div>
+
+                <!-- 7. RESULTS TAB -->
+                <div id="viewResults" class="view-panel hidden">
+                    <div class="page-header"><div class="page-title">📈 Semester Grades</div></div>
+                    <div class="card">
+                        <table>
+                            <thead><tr><th>Subject</th><th>Score</th><th>Status</th></tr></thead>
+                            <tbody id="resultsTableBody">
+                                <tr><td>DBMS</td><td>88</td><td><span style="color:green">Pass</span></td></tr>
+                                <tr><td>Java</td><td>92</td><td><span style="color:green">Pass</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 8. FEES TAB -->
+                <div id="viewFees" class="view-panel hidden">
+                    <div class="page-header"><div class="page-title">💰 Tuition Fees</div></div>
+                    <div class="card">
+                        <p>Total Tuition Fee: <strong>$4,500</strong></p>
+                        <p id="feeStatusDisplay" style="margin:10px 0;">Status: Unpaid</p>
+                        <button class="btn-primary" style="width:auto;" onclick="payFees()">Clear Tuition Fee</button>
+                    </div>
+                </div>
+
+                <!-- 9. NOTICES TAB -->
+                <div id="viewNotices" class="view-panel hidden">
+                    <div class="page-header"><div class="page-title">📢 Campus Notices</div></div>
+                    <div class="card" id="noticeContainer"></div>
+                </div>
+
+                <!-- 10. FACULTY TAB -->
+                <div id="viewFaculty" class="view-panel hidden">
+                    <div class="page-header"><div class="page-title">👨‍🏫 Department Faculty</div></div>
+                    <div class="grid">
+                        <div class="card"><h4>Dr. Robert Smith</h4><p>DBMS Department Head</p></div>
+                        <div class="card"><h4>Prof. Elena Ray</h4><p>AI & ML Specialist</p></div>
+                    </div>
+                </div>
+
+                <!-- 11. HELPDESK TAB -->
+                <div id="viewHelpdesk" class="view-panel hidden">
+                    <div class="page-header"><div class="page-title">🎫 Student Support Helpdesk</div></div>
+                    <div class="card">
+                        <div class="form-group"><label>Submit Ticket / Issue</label><textarea rows="3" placeholder="Describe issue..."></textarea></div>
+                        <button class="btn-primary" style="width:auto;" onclick="alert('Ticket Submitted!')">Submit Ticket</button>
+                    </div>
+                </div>
+
+                <!-- 12. RESUME & CAREER TAB -->
+                <div id="viewCareer" class="view-panel hidden">
+                    <div class="page-header"><div class="page-title">💼 Internships & Resume Builder</div></div>
                     <div class="grid">
                         <div class="card">
-                            <h3>Update Resume Information</h3>
-                            <div class="form-group">
-                                <label>Full Name</label>
-                                <input type="text" id="resName" placeholder="Your Full Name">
+                            <h3>B.Tech Internship Drives</h3>
+                            <div class="item-card" style="margin-top:15px;">
+                                <h4>Software Engineer Intern — WebWorks</h4>
+                                <p><span class="tech-pill">React</span><span class="tech-pill">Node.js</span></p>
+                                <button class="btn-primary" style="margin-top:10px; width:auto;" onclick="alert('Applied using saved resume profile!')">Apply Now</button>
                             </div>
-                            <div class="form-group">
-                                <label>Technical Skills (Comma separated)</label>
-                                <input type="text" id="resSkills" placeholder="C++, JavaScript, SQL, Git">
-                            </div>
-                            <div class="form-group">
-                                <label>Projects (Brief Description)</label>
-                                <textarea id="resProjects" rows="3" placeholder="Describe key engineering projects..."></textarea>
-                            </div>
-                            <button class="btn-primary" onclick="saveResume()">Generate & Save Resume</button>
                         </div>
                         <div class="card">
-                            <h3>Live Resume Preview</h3>
-                            <div id="resumePreview" class="resume-box">
-                                <p style="color:#888;">Fill out the form on the left to generate your resume profile.</p>
-                            </div>
+                            <h3>Resume Profile</h3>
+                            <div class="form-group"><label>Skills</label><input type="text" value="C++, Java, SQL, React"></div>
+                            <div class="form-group"><label>Engineering Projects</label><textarea rows="3">College Management System in JavaScript</textarea></div>
+                            <button class="btn-primary" onclick="alert('Profile Updated!')">Save Career Profile</button>
                         </div>
                     </div>
                 </div>
+
             </div>
-
-            <!-- FACULTY DASHBOARD -->
-            <div id="facultyDashboard" class="hidden">
-                <div class="grid">
-                    <div class="card">
-                        <h3>Publish Academic Grades</h3>
-                        <div class="form-group">
-                            <label>Student Mobile Number</label>
-                            <input type="text" id="markMobile" placeholder="e.g. 9876543210">
-                        </div>
-                        <div class="form-group">
-                            <label>Subject</label>
-                            <input type="text" id="markSubject" placeholder="e.g. Data Structures">
-                        </div>
-                        <div class="form-group">
-                            <label>Marks Received</label>
-                            <input type="number" id="markScore" placeholder="e.g. 92">
-                        </div>
-                        <button class="btn-primary" onclick="submitGrade()">Submit Grade Record</button>
-                    </div>
-
-                    <div class="card">
-                        <h3>Attendance Registration</h3>
-                        <div class="form-group">
-                            <label>Student Mobile Number</label>
-                            <input type="text" id="attMobile" placeholder="e.g. 9876543210">
-                        </div>
-                        <button class="btn-primary" onclick="registerAttendance()">Log Attendance</button>
-                        <br><br>
-                        <h4>Recent Attendance Logs</h4>
-                        <div id="facultyAttLog"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ADMIN DASHBOARD -->
-            <div id="adminDashboard" class="hidden">
-                <div class="grid">
-                    <div class="card">
-                        <h3>Post Campus Notice</h3>
-                        <div class="form-group">
-                            <textarea id="noticeInput" rows="3" placeholder="Enter notice content..."></textarea>
-                        </div>
-                        <button class="btn-primary" onclick="postNotice()">Publish Notice</button>
-                    </div>
-
-                    <div class="card">
-                        <h3>Post New B.Tech Internship/Job</h3>
-                        <div class="form-group">
-                            <label>Role / Title</label>
-                            <input type="text" id="jobTitle" placeholder="e.g. Full Stack Intern">
-                        </div>
-                        <div class="form-group">
-                            <label>Company</label>
-                            <input type="text" id="jobCompany" placeholder="e.g. TechCorp">
-                        </div>
-                        <div class="form-group">
-                            <label>Required Skills</label>
-                            <input type="text" id="jobTech" placeholder="e.g. React, Node.js">
-                        </div>
-                        <div class="form-group">
-                            <label>Stipend / Package</label>
-                            <input type="text" id="jobStipend" placeholder="e.g. $1000/month">
-                        </div>
-                        <button class="btn-primary" onclick="postJob()">Publish Job Posting</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </main>
     </div>
 
     <script>
-        // PRE-AUTHORIZED MOBILE NUMBERS DATABASE
-        const AUTHORIZED_MOBILE_NUMBERS = [
-            "9225908848", 
-            "9876543211", 
-            "9876543212", 
-            "9876543213", 
-            "9876543214"
-        ];
-
-        if (!localStorage.getItem('cms_notices')) {
-            localStorage.setItem('cms_notices', JSON.stringify([
-                "Welcome to the Academic Session 2026!",
-                "B.Tech Internship Drive begins next week. Update your resumes in the Career panel."
-            ]));
-        }
-
-        if (!localStorage.getItem('cms_jobs')) {
-            localStorage.setItem('cms_jobs', JSON.stringify([
-                { id: 1, title: "Frontend Developer Intern", company: "WebWorks Ltd", tech: "React, CSS, JS", stipend: "$800/mo", desc: "Build modern web user interfaces using modern JavaScript frameworks." },
-                { id: 2, title: "Software Engineer Trainee", company: "Apex Systems", tech: "C++, Python, SQL", stipend: "$1,200/mo", desc: "Assist backend core systems design and algorithm optimization." },
-                { id: 3, title: "Data Analyst Intern", company: "DataViz Inc", tech: "Python, SQL, Tableau", stipend: "$900/mo", desc: "Work with data pipelines and perform descriptive analysis for business insights." }
-            ]));
-        }
-
-        if (!localStorage.getItem('cms_marks')) localStorage.setItem('cms_marks', JSON.stringify([]));
-        if (!localStorage.getItem('cms_attendance')) localStorage.setItem('cms_attendance', JSON.stringify([]));
-        if (!localStorage.getItem('cms_students')) localStorage.setItem('cms_students', JSON.stringify({}));
-
+        // Authorized Mobile Numbers
+        const AUTHORIZED_MOBILES = ["9876543210", "9876543211", "9876543212", "9876543213", "9876543214"];
         let authMode = 'login';
         let currentUser = null;
 
-        function switchAuthMode(mode) {
+        function setAuthMode(mode) {
             authMode = mode;
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons[0].classList.toggle('active', mode === 'login');
-            buttons[1].classList.toggle('active', mode === 'register');
-            document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Login' : 'Register Account';
-            toggleMobileField();
+            const btns = document.querySelectorAll('.tab-btn');
+            btns[0].classList.toggle('active', mode === 'login');
+            btns[1].classList.toggle('active', mode === 'register');
+            document.getElementById('authSubmit').innerText = mode === 'login' ? 'Login' : 'Register';
         }
 
-        function toggleMobileField() {
-            const role = document.getElementById('role').value;
-            const mobileGroup = document.getElementById('mobileGroup');
-            if (role === 'student') {
-                mobileGroup.classList.remove('hidden');
-            } else {
-                mobileGroup.classList.add('hidden');
-            }
+        function toggleAuthFields() {
+            const role = document.getElementById('roleSelect').value;
+            document.getElementById('mobileGroup').classList.toggle('hidden', role !== 'student');
         }
 
-        // MOBILE-BASED AUTHENTICATION FUNCTION
-        function handleAuth(event) {
-            event.preventDefault();
-            const role = document.getElementById('role').value;
-            const userId = document.getElementById('userId').value.trim();
-            const mobileNo = document.getElementById('mobileNo').value.trim();
-            const password = document.getElementById('password').value;
+        function handleAuth(e) {
+            e.preventDefault();
+            const role = document.getElementById('roleSelect').value;
+            const mobile = document.getElementById('mobileInput').value.trim();
+            const user = document.getElementById('userInput').value.trim();
 
-            const registeredStudents = JSON.parse(localStorage.getItem('cms_students'));
-
-            if (role === 'student') {
-                // Step 1: Check if mobile number is pre-authorized
-                if (!AUTHORIZED_MOBILE_NUMBERS.includes(mobileNo)) {
-                    alert('AUTHENTICATION DENIED: Mobile number (' + mobileNo + ') is not registered in the pre-authorized student database.');
-                    return;
-                }
-
-                if (authMode === 'register') {
-                    if (registeredStudents[mobileNo]) {
-                        alert('Account already exists for this Mobile Number. Please Login.');
-                        return;
-                    }
-                    registeredStudents[mobileNo] = { userId, password, mobileNo, feePaid: false, resume: {} };
-                    localStorage.setItem('cms_students', JSON.stringify(registeredStudents));
-                    alert('Registration Successful! You can now log in.');
-                    switchAuthMode('login');
-                    return;
-                } else {
-                    if (!registeredStudents[mobileNo] || registeredStudents[mobileNo].password !== password) {
-                        alert('Invalid Credentials or account not registered with this Mobile Number.');
-                        return;
-                    }
-                }
+            if (role === 'student' && !AUTHORIZED_MOBILES.includes(mobile)) {
+                alert('ACCESS DENIED: Mobile Number (' + mobile + ') is not pre-authorized.');
+                return;
             }
 
-            currentUser = { role, userId, mobileNo: role === 'student' ? mobileNo : null };
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('appSection').classList.remove('hidden');
-            document.getElementById('userBadge').innerText = `${role.toUpperCase()} | Phone: ${currentUser.mobileNo || currentUser.userId}`;
+            currentUser = { role, user, mobile };
+            document.getElementById('authOverlay').classList.add('hidden');
+            document.getElementById('appLayout').classList.remove('hidden');
+            document.getElementById('userBadge').innerText = `${role.toUpperCase()} | ${mobile || user}`;
 
-            renderDashboards();
+            generateQR();
+            renderNotices();
         }
 
         function logout() {
-            currentUser = null;
-            document.getElementById('authSection').classList.remove('hidden');
-            document.getElementById('appSection').classList.add('hidden');
-            document.getElementById('qrcode').innerHTML = "";
+            document.getElementById('authOverlay').classList.remove('hidden');
+            document.getElementById('appLayout').classList.add('hidden');
         }
 
-        function renderDashboards() {
-            document.getElementById('studentDashboard').classList.add('hidden');
-            document.getElementById('facultyDashboard').classList.add('hidden');
-            document.getElementById('adminDashboard').classList.add('hidden');
+        function navigateTo(viewId, element) {
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
 
-            renderNotices();
-
-            if (currentUser.role === 'student') {
-                document.getElementById('studentDashboard').classList.remove('hidden');
-                generateStudentQR();
-                renderStudentMarks();
-                renderFeeStatus();
-                renderJobs();
-                loadResume();
-            } else if (currentUser.role === 'faculty') {
-                document.getElementById('facultyDashboard').classList.remove('hidden');
-                renderFacultyAttLog();
-            } else if (currentUser.role === 'admin') {
-                document.getElementById('adminDashboard').classList.remove('hidden');
-            }
+            const target = document.getElementById('view' + viewId.charAt(0).toUpperCase() + viewId.slice(1));
+            if (target) target.classList.remove('hidden');
+            element.classList.add('active');
+            document.getElementById('headerTitle').innerText = element.innerText.trim();
         }
 
-        function switchStudentTab(tabName) {
-            document.getElementById('tabAcademics').classList.toggle('hidden', tabName !== 'academics');
-            document.getElementById('tabInternships').classList.toggle('hidden', tabName !== 'internships');
-            document.getElementById('tabCareer').classList.toggle('hidden', tabName !== 'career');
-
-            const tabs = document.querySelectorAll('.panel-tab');
-            tabs[0].classList.toggle('active', tabName === 'academics');
-            tabs[1].classList.toggle('active', tabName === 'internships');
-            tabs[2].classList.toggle('active', tabName === 'career');
-        }
-
-        function generateStudentQR() {
+        function generateQR() {
             const container = document.getElementById('qrcode');
             container.innerHTML = "";
-            new QRCode(container, {
-                text: JSON.stringify({ mobileNo: currentUser.mobileNo, date: new Date().toLocaleDateString() }),
-                width: 120,
-                height: 120
-            });
-        }
-
-        function submitGrade() {
-            const mobileNo = document.getElementById('markMobile').value.trim();
-            const subject = document.getElementById('markSubject').value.trim();
-            const score = document.getElementById('markScore').value;
-
-            if (!mobileNo || !subject || !score) return alert('Fill out all fields');
-
-            const marks = JSON.parse(localStorage.getItem('cms_marks'));
-            marks.push({ mobileNo, subject, score });
-            localStorage.setItem('cms_marks', JSON.stringify(marks));
-
-            alert('Grade successfully logged!');
-            document.getElementById('markMobile').value = '';
-            document.getElementById('markSubject').value = '';
-            document.getElementById('markScore').value = '';
-        }
-
-        function renderStudentMarks() {
-            const marks = JSON.parse(localStorage.getItem('cms_marks'));
-            const tbody = document.getElementById('studentMarksTable');
-            tbody.innerHTML = '';
-
-            const studentMarks = marks.filter(m => m.mobileNo === currentUser.mobileNo);
-            if (studentMarks.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3">No subject marks posted yet.</td></tr>';
-                return;
-            }
-
-            studentMarks.forEach(m => {
-                const tr = document.createElement('tr');
-                const status = m.score >= 40 ? '<span style="color:green;font-weight:bold;">Pass</span>' : '<span style="color:red;font-weight:bold;">Fail</span>';
-                tr.innerHTML = `<td>${m.subject}</td><td>${m.score}</td><td>${status}</td>`;
-                tbody.appendChild(tr);
-            });
+            new QRCode(container, { text: currentUser.mobile || currentUser.user, width: 120, height: 120 });
         }
 
         function payFees() {
-            const students = JSON.parse(localStorage.getItem('cms_students'));
-            if (students[currentUser.mobileNo]) {
-                students[currentUser.mobileNo].feePaid = true;
-                localStorage.setItem('cms_students', JSON.stringify(students));
-                renderFeeStatus();
-                alert('Semester Tuition Fee Paid Successfully!');
-            }
-        }
-
-        function renderFeeStatus() {
-            const students = JSON.parse(localStorage.getItem('cms_students'));
-            const isPaid = students[currentUser.mobileNo] ? students[currentUser.mobileNo].feePaid : false;
-            const text = document.getElementById('feeStatusText');
-            text.innerHTML = `Status: <strong style="color:${isPaid ? 'green' : 'red'}">${isPaid ? 'CLEARED / PAID' : 'UNPAID / PENDING'}</strong>`;
-        }
-
-        function renderJobs(filter = "") {
-            const jobs = JSON.parse(localStorage.getItem('cms_jobs'));
-            const container = document.getElementById('jobListings');
-            container.innerHTML = "";
-
-            const filtered = jobs.filter(j => 
-                j.title.toLowerCase().includes(filter.toLowerCase()) || 
-                j.tech.toLowerCase().includes(filter.toLowerCase())
-            );
-
-            if (filtered.length === 0) {
-                container.innerHTML = "<p>No matching internship postings found.</p>";
-                return;
-            }
-
-            filtered.forEach(job => {
-                const card = document.createElement('div');
-                card.className = "job-card";
-                card.innerHTML = `
-                    <button class="apply-btn" onclick="applyJob('${job.title}')">Apply Now</button>
-                    <h4>${job.title} - ${job.company}</h4>
-                    <p style="font-size:13px; color:#555;">Stipend: <strong>${job.stipend}</strong></p>
-                    <p style="margin:5px 0; font-size:14px;">${job.desc}</p>
-                    <div>${job.tech.split(',').map(t => `<span class="job-tech">${t.trim()}</span>`).join('')}</div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function filterJobs() {
-            const query = document.getElementById('jobSearchInput').value;
-            renderJobs(query);
-        }
-
-        function applyJob(title) {
-            alert(`Application submitted for "${title}" using your registered profile!`);
-        }
-
-        function postJob() {
-            const title = document.getElementById('jobTitle').value;
-            const company = document.getElementById('jobCompany').value;
-            const tech = document.getElementById('jobTech').value;
-            const stipend = document.getElementById('jobStipend').value;
-
-            if (!title || !company || !tech) return alert('Fill required fields');
-
-            const jobs = JSON.parse(localStorage.getItem('cms_jobs'));
-            jobs.unshift({ id: Date.now(), title, company, tech, stipend, desc: "Engineering internship program." });
-            localStorage.setItem('cms_jobs', JSON.stringify(jobs));
-
-            alert('Job posting published!');
-            document.getElementById('jobTitle').value = '';
-            document.getElementById('jobCompany').value = '';
-            document.getElementById('jobTech').value = '';
-            document.getElementById('jobStipend').value = '';
-        }
-
-        function saveResume() {
-            const name = document.getElementById('resName').value;
-            const skills = document.getElementById('resSkills').value;
-            const projects = document.getElementById('resProjects').value;
-
-            const students = JSON.parse(localStorage.getItem('cms_students'));
-            if (students[currentUser.mobileNo]) {
-                students[currentUser.mobileNo].resume = { name, skills, projects };
-                localStorage.setItem('cms_students', JSON.stringify(students));
-                renderResumePreview({ name, skills, projects });
-                alert('Resume profile updated!');
-            }
-        }
-
-        function loadResume() {
-            const students = JSON.parse(localStorage.getItem('cms_students'));
-            const res = students[currentUser.mobileNo] ? students[currentUser.mobileNo].resume : null;
-            if (res && res.name) {
-                document.getElementById('resName').value = res.name || '';
-                document.getElementById('resSkills').value = res.skills || '';
-                document.getElementById('resProjects').value = res.projects || '';
-                renderResumePreview(res);
-            }
-        }
-
-        function renderResumePreview(res) {
-            const preview = document.getElementById('resumePreview');
-            preview.innerHTML = `
-                <h2>${res.name || 'Your Name'}</h2>
-                <p><strong>Mobile:</strong> ${currentUser.mobileNo} (Verified Candidate)</p>
-                <hr style="margin:10px 0;">
-                <p><strong>Technical Competencies:</strong></p>
-                <p>${res.skills || 'N/A'}</p><br>
-                <p><strong>Engineering Projects:</strong></p>
-                <p>${res.projects || 'N/A'}</p>
-            `;
-        }
-
-        function registerAttendance() {
-            const mobileNo = document.getElementById('attMobile').value.trim();
-            if (!mobileNo) return alert('Enter Mobile Number');
-
-            const att = JSON.parse(localStorage.getItem('cms_attendance'));
-            att.unshift({ mobileNo, time: new Date().toLocaleTimeString() });
-            localStorage.setItem('cms_attendance', JSON.stringify(att));
-
-            alert(`Attendance logged for ${mobileNo}`);
-            document.getElementById('attMobile').value = '';
-            renderFacultyAttLog();
-        }
-
-        function renderFacultyAttLog() {
-            const att = JSON.parse(localStorage.getItem('cms_attendance'));
-            const log = document.getElementById('facultyAttLog');
-            log.innerHTML = att.map(a => `<p style="font-size:13px;">✔ <strong>${a.mobileNo}</strong> - ${a.time}</p>`).join('');
-        }
-
-        function postNotice() {
-            const text = document.getElementById('noticeInput').value.trim();
-            if (!text) return;
-
-            const notices = JSON.parse(localStorage.getItem('cms_notices'));
-            notices.unshift(text);
-            localStorage.setItem('cms_notices', JSON.stringify(notices));
-
-            document.getElementById('noticeInput').value = '';
-            renderNotices();
+            document.getElementById('feeStatusDisplay').innerHTML = 'Status: <strong style="color:green;">PAID / CLEARED</strong>';
+            alert('Payment completed successfully!');
         }
 
         function renderNotices() {
-            const notices = JSON.parse(localStorage.getItem('cms_notices'));
-            document.getElementById('noticeList').innerHTML = notices.map(n => `<div class="notice-item">${n}</div>`).join('');
+            document.getElementById('noticeContainer').innerHTML = `
+                <div class="item-card">📢 Semester 7 Timetable Released</div>
+                <div class="item-card">📢 B.Tech Campus Recruitment Registration Open</div>
+            `;
         }
     </script>
 </body>
